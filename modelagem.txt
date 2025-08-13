@@ -1,0 +1,49 @@
++---------------------+       +---------------------+       +---------------------+
+|      USUÁRIO        |       |       CURSO        |       |      MATÉRIA       |
++---------------------+       +---------------------+       +---------------------+
+| PK id_usuario       |       | PK id_curso        |       | PK id_materia      |
+|    nome             |       |    nome            |       |    nome            |
+|    cpf              |       |    descricao       |       |    codigo          |
+|    endereco         |       |    carga_horaria   |       |    carga_horaria   |
+|    cep              |       +---------------------+       | FK id_curso        |
+|    telefone         |               |                     | FK id_professor   |
+|    email            |               |                     +---------------------+
+|    senha            |               |                             |
+|    tipo_usuario     |               |                             |
++---------------------+               |                             |
+        |                             |                             |
+        |                             |                             |
+        |                     +---------------------+              |
+        |                     |    CURSO_MATERIA    |              |
+        |                     +---------------------+              |
+        |                     | PK FK id_curso      |              |
+        |                     | PK FK id_materia   |              |
+        |                     +---------------------+              |
+        |                                                           |
+        |                                                           |
++---------------------+                                     +---------------------+
+|     PROFESSOR       |                                     |       ALUNO        |
++---------------------+                                     +---------------------+
+| PK FK id_usuario    |                                     | PK FK id_usuario   |
+|    matricula        |                                     |    matricula       |
+|    formacao         |                                     | FK id_curso        |
++---------------------+                                     +---------------------+
+        ^                                                                 |
+        |                                                                 |
+        |                                                                 |
++---------------------+                                                   |
+|    COORDENADOR     |                                                   |
++---------------------+                                                   |
+| PK FK id_usuario    |                                                   |
+|    area_responsavel |                                                   |
++---------------------+                                                   |
+                                                                          |
+                                                                          |
++---------------------+                                                   |
+|  ALUNO_MATERIA      |                                                   |
++---------------------+                                                   |
+| PK FK id_aluno      |<--------------------------------------------------|
+| PK FK id_materia    |
+|    nota             |
+|    frequencia       |
++---------------------+
