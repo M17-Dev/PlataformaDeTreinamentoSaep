@@ -18,9 +18,21 @@ public abstract class Usuario {
 
     protected String nome;
     protected String cpf;
-    protected String matricula;
+    protected String login;
+    protected String senha;
 
     @Enumerated(EnumType.STRING)
     protected TipoDeUsuario tipoDeUsuario;
+
+    public Usuario(Long id, String nome, String cpf, String login, String senha, boolean status) {
+        this.id = id;
+        this.nome = nome;
+        this.cpf = cpf;
+        this.login = login;
+        this.senha = senha;
+        this.status = status;
+    }
+
     protected boolean status;
 }
+

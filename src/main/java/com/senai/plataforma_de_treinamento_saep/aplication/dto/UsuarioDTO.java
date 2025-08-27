@@ -10,7 +10,8 @@ public record UsuarioDTO(
         Long id,
         String nome,
         String cpf,
-        String matricula,
+        String login,
+        String senha,
         TipoDeUsuario tipoDeUsuario,
         boolean status
 ) {
@@ -25,7 +26,8 @@ public record UsuarioDTO(
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getCpf(),
-                usuario.getMatricula(),
+                usuario.getLogin(),
+                usuario.getSenha(),
                 tipoUsuario,
                 usuario.isStatus()
         );
@@ -40,7 +42,8 @@ public record UsuarioDTO(
 
         usuario.setNome(nome);
         usuario.setCpf(cpf);
-        usuario.setMatricula(matricula);
+        usuario.setLogin(login);
+        usuario.setSenha(senha);
         usuario.setTipoDeUsuario(tipoDeUsuario);
         usuario.setStatus(true);
         return usuario;

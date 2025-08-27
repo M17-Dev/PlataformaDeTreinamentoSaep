@@ -7,14 +7,16 @@ public record CoordenadorDTO(
         Long id,
         String nome,
         String cpf,
-        String matricula
+        String login,
+        String senha
 ) {
     public static CoordenadorDTO toDTO(Coordenador coordenador) {
         return new CoordenadorDTO(
                 coordenador.getId(),
                 coordenador.getNome(),
                 coordenador.getCpf(),
-                coordenador.getMatricula()
+                coordenador.getLogin(),
+                coordenador.getSenha()
         );
     }
 
@@ -22,7 +24,8 @@ public record CoordenadorDTO(
         Coordenador coordenador = new Coordenador();
         coordenador.setNome(nome);
         coordenador.setCpf(cpf);
-        coordenador.setMatricula(matricula);
+        coordenador.setLogin(login);
+        coordenador.setSenha(senha);
         coordenador.setTipoDeUsuario(TipoDeUsuario.COORDENADOR);
         coordenador.setStatus(true);
 

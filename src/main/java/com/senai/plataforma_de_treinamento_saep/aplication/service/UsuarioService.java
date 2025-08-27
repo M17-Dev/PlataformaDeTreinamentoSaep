@@ -2,7 +2,12 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
+import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.AlunoRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.CoordenadorRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.ProfessorRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +20,11 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepo;
+    private final AlunoRepository alunoRepo;
+    private final ProfessorRepository profRepo;
+    private final CoordenadorRepository coordRepo;
 
+    @Transactional
     public void cadastrarUsuario(UsuarioDTO dto) {
         usuarioRepo.save(dto.fromDTO());
     }
@@ -84,13 +93,14 @@ public class UsuarioService {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             usuario.setNome(dto.nome());
         }
-
         if (dto.cpf() != null && !dto.cpf().isBlank()) {
             usuario.setCpf(dto.cpf());
         }
-
-        if (dto.matricula() != null && !dto.matricula().isBlank()) {
-            usuario.setMatricula(dto.matricula());
+        if (dto.login() != null && !dto.login().isBlank()) {
+            usuario.setLogin(dto.login());
+        }
+        if (dto.senha() != null && !dto.senha().isBlank()) {
+            usuario.setSenha(dto.senha());
         }
     }
 }
