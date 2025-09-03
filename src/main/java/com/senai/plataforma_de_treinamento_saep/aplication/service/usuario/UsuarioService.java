@@ -1,12 +1,11 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.UsuarioDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
-import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;
-import com.senai.plataforma_de_treinamento_saep.domain.repository.AlunoRepository;
-import com.senai.plataforma_de_treinamento_saep.domain.repository.CoordenadorRepository;
-import com.senai.plataforma_de_treinamento_saep.domain.repository.ProfessorRepository;
-import com.senai.plataforma_de_treinamento_saep.domain.repository.UsuarioRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.CoordenadorRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

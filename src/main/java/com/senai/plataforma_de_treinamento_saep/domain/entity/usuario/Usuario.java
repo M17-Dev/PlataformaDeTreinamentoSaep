@@ -24,6 +24,8 @@ public abstract class Usuario {
     @Enumerated(EnumType.STRING)
     protected TipoDeUsuario tipoDeUsuario;
 
+    protected boolean status;
+
     public Usuario(Long id, String nome, String cpf, String login, String senha, boolean status) {
         this.id = id;
         this.nome = nome;
@@ -32,7 +34,5 @@ public abstract class Usuario {
         this.senha = senha;
         this.status = status;
     }
-
-    protected boolean status;
 }
 

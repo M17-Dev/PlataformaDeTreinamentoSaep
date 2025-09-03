@@ -1,4 +1,4 @@
-package com.senai.plataforma_de_treinamento_saep.aplication.dto;
+package com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;

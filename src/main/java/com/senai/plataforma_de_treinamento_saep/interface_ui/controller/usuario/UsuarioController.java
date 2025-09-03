@@ -1,7 +1,7 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.UsuarioDTO;
-import com.senai.plataforma_de_treinamento_saep.aplication.service.UsuarioService;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
