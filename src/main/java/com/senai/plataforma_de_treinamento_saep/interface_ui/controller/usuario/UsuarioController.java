@@ -1,4 +1,4 @@
-package com.senai.plataforma_de_treinamento_saep.interface_ui.controller;
+package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.UsuarioService;

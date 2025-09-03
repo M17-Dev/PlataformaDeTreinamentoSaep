@@ -1,4 +1,4 @@
-package com.senai.plataforma_de_treinamento_saep.aplication.service;
+package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
