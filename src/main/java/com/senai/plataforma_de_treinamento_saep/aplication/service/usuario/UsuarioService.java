@@ -19,9 +19,6 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepo;
-    private final AlunoRepository alunoRepo;
-    private final ProfessorRepository profRepo;
-    private final CoordenadorRepository coordRepo;
 
     @Transactional
     public void cadastrarUsuario(UsuarioDTO dto) {

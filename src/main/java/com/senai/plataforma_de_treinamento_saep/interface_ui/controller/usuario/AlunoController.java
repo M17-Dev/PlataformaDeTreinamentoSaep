@@ -33,7 +33,7 @@ public class AlunoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AlunoDTO> atualizarUsuario(@PathVariable Long id, @RequestBody AlunoDTO dto) {
+    public ResponseEntity<AlunoDTO> atualizarAluno(@PathVariable Long id, @RequestBody AlunoDTO dto) {
         if (alunoService.atualizarAluno(id, dto)) {
             return ResponseEntity.ok().build();
         }
@@ -41,7 +41,7 @@ public class AlunoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<AlunoDTO> inativarUsuario(@PathVariable Long id) {
+    public ResponseEntity<AlunoDTO> inativarAluno(@PathVariable Long id) {
         if (alunoService.inativarAluno(id)) {
             return ResponseEntity.ok().build();
         }
@@ -49,7 +49,7 @@ public class AlunoController {
     }
 
     @PutMapping("/reativar/{id}")
-    public ResponseEntity<AlunoDTO> reativarCliente(@PathVariable Long id) {
+    public ResponseEntity<AlunoDTO> reativarAluno(@PathVariable Long id) {
         if (alunoService.reativarAluno(id)) {
             return ResponseEntity.ok().build();
         }
