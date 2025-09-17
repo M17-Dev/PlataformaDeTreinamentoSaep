@@ -6,32 +6,12 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;
 
-public record UsuarioDTO(
-        Long id,
+public record UsuarioUpdateDTO(
         String nome,
-        String cpf,
         String senha,
-        TipoDeUsuario tipoDeUsuario,
-        boolean status
+        TipoDeUsuario tipoDeUsuario
 ) {
-    public static UsuarioDTO toDTO(Usuario usuario) {
-        TipoDeUsuario tipoUsuario = switch (usuario) {
-            case Aluno aluno -> TipoDeUsuario.ALUNO;
-            case Coordenador coord -> TipoDeUsuario.COORDENADOR;
-            case Professor prof -> TipoDeUsuario.PROFESSOR;
-            default -> throw new IllegalArgumentException("Tipo de usuário invalido");
-        };
-        return new UsuarioDTO(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getCpf(),
-                usuario.getSenha(),
-                tipoUsuario,
-                usuario.isStatus()
-        );
-    }
-
-    public Usuario fromDTO() {
+    public Usuario fromDto(){
         Usuario usuario = switch (tipoDeUsuario) {
             case ALUNO -> new Aluno();
             case PROFESSOR -> new Professor();
@@ -39,10 +19,8 @@ public record UsuarioDTO(
         };
 
         usuario.setNome(nome);
-        usuario.setCpf(cpf);
         usuario.setSenha(senha);
         usuario.setTipoDeUsuario(tipoDeUsuario);
-        usuario.setStatus(true);
         return usuario;
     }
 }

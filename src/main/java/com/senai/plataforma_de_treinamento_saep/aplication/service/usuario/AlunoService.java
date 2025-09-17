@@ -84,12 +84,6 @@ public class AlunoService {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             aluno.setNome(dto.nome());
         }
-        if (dto.cpf() != null && !dto.cpf().isBlank()) {
-            aluno.setCpf(dto.cpf());
-        }
-        if (dto.login() != null && !dto.login().isBlank()) {
-            aluno.setLogin(dto.login());
-        }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             aluno.setSenha(dto.senha());
         }

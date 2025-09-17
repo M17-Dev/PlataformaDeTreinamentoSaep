@@ -4,7 +4,6 @@ SELECT
     u.id,
     u.nome,
     u.cpf,
-    u.login,
     u.senha,
     u.status
 FROM
@@ -18,7 +17,6 @@ SELECT
     u.id,
     u.nome,
     u.cpf,
-    u.login,
     u.senha,
     u.status
 FROM
@@ -32,7 +30,6 @@ SELECT
     u.id,
     u.nome,
     u.cpf,
-    u.login,
     u.senha,
     u.status
 FROM

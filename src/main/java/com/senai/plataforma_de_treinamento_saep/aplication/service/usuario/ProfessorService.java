@@ -3,6 +3,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.ProfessorDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class ProfessorService {
 
     private final ProfessorRepository profRepo;
+    private final UsuarioServiceDomain usuarioSD;
 
     public void cadastrarProfessor(ProfessorDTO dto) {
         profRepo.save(dto.fromDto());
@@ -83,12 +85,6 @@ public class ProfessorService {
     private void atualizarInfos(Professor prof, ProfessorDTO dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             prof.setNome(dto.nome());
-        }
-        if (dto.cpf() != null && !dto.cpf().isBlank()) {
-            prof.setCpf(dto.cpf());
-        }
-        if (dto.login() != null && !dto.login().isBlank()) {
-            prof.setLogin(dto.login());
         }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             prof.setSenha(dto.senha());

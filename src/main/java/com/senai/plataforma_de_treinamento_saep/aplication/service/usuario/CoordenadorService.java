@@ -84,12 +84,6 @@ public class CoordenadorService {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             coord.setNome(dto.nome());
         }
-        if (dto.cpf() != null && !dto.cpf().isBlank()) {
-            coord.setCpf(dto.cpf());
-        }
-        if (dto.login() != null && !dto.login().isBlank()) {
-            coord.setLogin(dto.login());
-        }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             coord.setSenha(dto.senha());
         }

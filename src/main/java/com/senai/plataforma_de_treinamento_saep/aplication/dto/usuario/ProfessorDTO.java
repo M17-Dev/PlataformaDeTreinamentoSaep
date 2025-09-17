@@ -7,7 +7,6 @@ public record ProfessorDTO(
         Long id,
         String nome,
         String cpf,
-        String login,
         String senha
 ) {
     public static ProfessorDTO toDTO(Professor professor) {
@@ -15,7 +14,6 @@ public record ProfessorDTO(
                 professor.getId(),
                 professor.getNome(),
                 professor.getCpf(),
-                professor.getLogin(),
                 professor.getSenha()
         );
     }
@@ -24,7 +22,6 @@ public record ProfessorDTO(
         Professor professor = new Professor();
         professor.setNome(nome);
         professor.setCpf(cpf);
-        professor.setLogin(login);
         professor.setSenha(senha);
         professor.setTipoDeUsuario(TipoDeUsuario.PROFESSOR);
         professor.setStatus(true);

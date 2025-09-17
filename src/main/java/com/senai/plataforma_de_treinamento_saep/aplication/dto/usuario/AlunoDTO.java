@@ -7,7 +7,6 @@ public record AlunoDTO(
         Long id,
         String nome,
         String cpf,
-        String login,
         String senha
 ) {
     public static AlunoDTO toDTO(Aluno aluno) {
@@ -15,7 +14,6 @@ public record AlunoDTO(
                 aluno.getId(),
                 aluno.getNome(),
                 aluno.getCpf(),
-                aluno.getLogin(),
                 aluno.getSenha()
         );
     }
@@ -24,7 +22,6 @@ public record AlunoDTO(
         Aluno aluno = new Aluno();
         aluno.setNome(nome);
         aluno.setCpf(cpf);
-        aluno.setLogin(login);
         aluno.setSenha(senha);
         aluno.setTipoDeUsuario(TipoDeUsuario.ALUNO);
         aluno.setStatus(true);
