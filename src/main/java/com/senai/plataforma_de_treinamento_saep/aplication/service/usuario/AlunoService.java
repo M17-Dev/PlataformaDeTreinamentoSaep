@@ -1,7 +1,10 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +21,9 @@ public class AlunoService {
     private final AlunoRepository alunoRepo;
     private final UsuarioServiceDomain usuarioSD;
 
-    public void cadastrarAluno(AlunoDTO dto) {
+    public Aluno cadastrarAluno(AlunoDTO dto) {
         usuarioSD.verificarCpfExistente(dto.cpf());
-        alunoRepo.save(dto.fromDto());
+        return alunoRepo.save(dto.fromDto());
     }
 
     public List<AlunoDTO> listarAlunosAtivos() {
@@ -41,16 +44,16 @@ public class AlunoService {
                 );
     }
 
-    public boolean atualizarAluno(Long id, AlunoDTO alunoDTO) {
+    public AlunoDTO atualizarAluno(Long id, UsuarioUpdateDTO alunoDTO) {
         return alunoRepo.findById(id)
                 .map(
                         aluno -> {
                             atualizarInfos(aluno, alunoDTO);
-                            alunoRepo.save(aluno);
-                            return true;
+                            Aluno alunoAtualizado = alunoRepo.save(aluno);
+                            return AlunoDTO.toDTO(alunoAtualizado);
                         }
                 )
-                .orElse(false);
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Aluno dono do ID: " + id + " não encontrado"));
     }
 
     public boolean inativarAluno(Long id) {
@@ -83,7 +86,7 @@ public class AlunoService {
                 .orElse(false);
     }
 
-    private void atualizarInfos(Aluno aluno, AlunoDTO dto) {
+    private void atualizarInfos(Aluno aluno, UsuarioUpdateDTO dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             aluno.setNome(dto.nome());
         }

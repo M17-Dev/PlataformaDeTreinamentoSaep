@@ -2,7 +2,9 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.CoordenadorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.CoordenadorRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +21,9 @@ public class CoordenadorService {
     private final CoordenadorRepository coordRepo;
     private final UsuarioServiceDomain usuarioSD;
 
-    public void cadastrarCoordenador(CoordenadorDTO dto) {
+    public Coordenador cadastrarCoordenador(CoordenadorDTO dto) {
         usuarioSD.verificarCpfExistente(dto.cpf());
-        coordRepo.save(dto.fromDto());
+        return coordRepo.save(dto.fromDto());
     }
 
     public List<CoordenadorDTO> listarCoordenadoresAtivos() {
@@ -42,16 +44,16 @@ public class CoordenadorService {
                 );
     }
 
-    public boolean atualizarCoordenador(Long id, CoordenadorDTO dto) {
+    public CoordenadorDTO atualizarCoordenador(Long id, UsuarioUpdateDTO dto) {
         return coordRepo.findById(id)
                 .map(
                         coordenador -> {
                             atualizarInfos(coordenador, dto);
-                            coordRepo.save(coordenador);
-                            return true;
+                            Coordenador coordAtt = coordRepo.save(coordenador);
+                            return CoordenadorDTO.toDTO(coordAtt);
                         }
                 )
-                .orElse(false);
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Coordenador dono do ID: " + id + " não encontrado"));
     }
 
     public boolean inativarCoordenador(Long id) {
@@ -84,7 +86,7 @@ public class CoordenadorService {
                 .orElse(false);
     }
 
-    private void atualizarInfos(Coordenador coord, CoordenadorDTO dto) {
+    private void atualizarInfos(Coordenador coord, UsuarioUpdateDTO dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             coord.setNome(dto.nome());
         }

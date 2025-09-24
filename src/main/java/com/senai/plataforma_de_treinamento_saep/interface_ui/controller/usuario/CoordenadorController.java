@@ -2,7 +2,9 @@ package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.CoordenadorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.CoordenadorService;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +18,10 @@ public class CoordenadorController {
     private final CoordenadorService coordService;
 
     @PostMapping
-    public ResponseEntity<Void> cadastrarCoordenador(@RequestBody CoordenadorDTO dto) {
-        coordService.cadastrarCoordenador(dto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Coordenador> cadastrarCoordenador(@RequestBody CoordenadorDTO dto) {
+        return ResponseEntity
+                .status(201)
+                .body(coordService.cadastrarCoordenador(dto));
     }
 
     @GetMapping
@@ -34,11 +37,9 @@ public class CoordenadorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CoordenadorDTO> atualizarCoordenador(@PathVariable Long id, @RequestBody CoordenadorDTO dto) {
-        if (coordService.atualizarCoordenador(id, dto)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<CoordenadorDTO> atualizarCoordenador(@PathVariable Long id, @RequestBody UsuarioUpdateDTO dto) {
+        return ResponseEntity
+                .ok(coordService.atualizarCoordenador(id, dto));
     }
 
     @DeleteMapping("/{id}")
