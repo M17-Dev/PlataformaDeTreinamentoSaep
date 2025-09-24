@@ -19,6 +19,7 @@ public class ProfessorService {
     private final UsuarioServiceDomain usuarioSD;
 
     public void cadastrarProfessor(ProfessorDTO dto) {
+        usuarioSD.verificarCpfExistente(dto.cpf());
         profRepo.save(dto.fromDto());
     }
 

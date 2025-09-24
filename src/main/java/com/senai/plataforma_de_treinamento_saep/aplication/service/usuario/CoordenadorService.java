@@ -4,6 +4,7 @@ import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.CoordenadorDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.CoordenadorRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +15,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CoordenadorService {
+
     private final CoordenadorRepository coordRepo;
+    private final UsuarioServiceDomain usuarioSD;
 
     public void cadastrarCoordenador(CoordenadorDTO dto) {
+        usuarioSD.verificarCpfExistente(dto.cpf());
         coordRepo.save(dto.fromDto());
     }
 

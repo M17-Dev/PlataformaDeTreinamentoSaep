@@ -3,6 +3,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +16,10 @@ import java.util.stream.Collectors;
 public class AlunoService {
 
     private final AlunoRepository alunoRepo;
+    private final UsuarioServiceDomain usuarioSD;
 
     public void cadastrarAluno(AlunoDTO dto) {
+        usuarioSD.verificarCpfExistente(dto.cpf());
         alunoRepo.save(dto.fromDto());
     }
 
