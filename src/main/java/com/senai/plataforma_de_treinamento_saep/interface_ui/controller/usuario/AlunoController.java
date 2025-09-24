@@ -1,7 +1,9 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.AlunoService;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +17,10 @@ public class AlunoController {
     private final AlunoService alunoService;
 
     @PostMapping
-    public ResponseEntity<Void> cadastrarAluno(@RequestBody AlunoDTO dto) {
-        alunoService.cadastrarAluno(dto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Aluno> cadastrarAluno(@RequestBody AlunoDTO dto) {
+        return ResponseEntity
+                .status(201)
+                .body(alunoService.cadastrarAluno(dto));
     }
 
     @GetMapping
@@ -33,11 +36,8 @@ public class AlunoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AlunoDTO> atualizarAluno(@PathVariable Long id, @RequestBody AlunoDTO dto) {
-        if (alunoService.atualizarAluno(id, dto)) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<AlunoDTO> atualizarAluno(@PathVariable Long id, @RequestBody UsuarioUpdateDTO dto) {
+        return ResponseEntity.ok(alunoService.atualizarAluno(id, dto));
     }
 
     @DeleteMapping("/{id}")

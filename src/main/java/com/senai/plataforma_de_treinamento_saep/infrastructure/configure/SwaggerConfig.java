@@ -13,11 +13,11 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("API - Plataforma de Treinamento Para o Saep")
-                        .description("Plataforma para realizar testes práticos")
+                        .description("Plataforma para realizar testes práticos da avaliação \"SAEP\" realizada pelo sistema do SENAI")
                         .version("1.0")
                         .contact(new Contact()
-                                .name("Equipe Vitor")
-                                .email("suporte@cliente.com"))
+                                .name("Equipe Huggin")
+                                .email("huggin@support.com"))
                 );
     }
 }
