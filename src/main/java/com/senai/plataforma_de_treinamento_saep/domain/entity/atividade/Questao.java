@@ -1,3 +1,5 @@
+// Copie e cole este código inteiro no seu arquivo Questao.java
+
 package com.senai.plataforma_de_treinamento_saep.domain.entity.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
@@ -7,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList; // Importe o ArrayList
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,9 +34,10 @@ public class Questao {
     protected Professor professorID;
 
 
-    // 1. A Questão tem uma LISTA de Respostas.
-    // 2. mappedBy="questao" diz que a entidade Resposta é quem "manda" na relação.
-    // 3. Cascade e orphanRemoval gerenciam o ciclo de vida das respostas junto com a questão.
+    // --- RELACIONAMENTOS CORRIGIDOS ---
+
+    // 1. Relacionamento com Resposta (OneToMany)
+    // Uma Questao tem muitas Respostas.
     @OneToMany(
             mappedBy = "questao",
             cascade = CascadeType.ALL,
@@ -43,6 +46,13 @@ public class Questao {
     protected List<Resposta> respostas = new ArrayList<>();
 
 
-    @OneToMany(mappedBy = "questao")
-    protected List<UnidadeCurricular> unidadeCurriculars;
+    // 2. Relacionamento com UnidadeCurricular (ManyToMany)
+    // Uma Questao pode estar em muitas Unidades Curriculares.
+    @ManyToMany
+    @JoinTable(
+            name = "questao_unidade_curricular",
+            joinColumns = @JoinColumn(name = "questao_id"),
+            inverseJoinColumns = @JoinColumn(name = "unidade_curricular_id")
+    )
+    protected List<UnidadeCurricular> unidadeCurriculars = new ArrayList<>();
 }
