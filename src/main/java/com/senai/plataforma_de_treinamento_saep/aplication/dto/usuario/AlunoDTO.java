@@ -7,14 +7,16 @@ public record AlunoDTO(
         Long id,
         String nome,
         String cpf,
-        String senha
+        String senha,
+        boolean status
 ) {
     public static AlunoDTO toDTO(Aluno aluno) {
         return new AlunoDTO(
                 aluno.getId(),
                 aluno.getNome(),
                 aluno.getCpf(),
-                aluno.getSenha()
+                aluno.getSenha(),
+                aluno.isStatus()
         );
     }
 

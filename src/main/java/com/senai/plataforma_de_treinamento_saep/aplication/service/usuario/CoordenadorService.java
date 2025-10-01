@@ -1,6 +1,5 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.CoordenadorDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
@@ -49,8 +48,8 @@ public class CoordenadorService {
                 .map(
                         coordenador -> {
                             atualizarInfos(coordenador, dto);
-                            Coordenador coordAtt = coordRepo.save(coordenador);
-                            return CoordenadorDTO.toDTO(coordAtt);
+                            Coordenador coordAtualizado = coordRepo.save(coordenador);
+                            return CoordenadorDTO.toDTO(coordAtualizado);
                         }
                 )
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Coordenador dono do ID: " + id + " não encontrado"));

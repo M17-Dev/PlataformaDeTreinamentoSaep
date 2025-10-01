@@ -7,14 +7,16 @@ public record ProfessorDTO(
         Long id,
         String nome,
         String cpf,
-        String senha
+        String senha,
+        boolean status
 ) {
     public static ProfessorDTO toDTO(Professor professor) {
         return new ProfessorDTO(
                 professor.getId(),
                 professor.getNome(),
                 professor.getCpf(),
-                professor.getSenha()
+                professor.getSenha(),
+                professor.isStatus()
         );
     }
 

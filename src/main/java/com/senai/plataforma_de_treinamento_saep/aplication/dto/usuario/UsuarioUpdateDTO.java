@@ -2,8 +2,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario;
 
 public record UsuarioUpdateDTO(
         String nome,
-        String senha,
-        String cpf
+        String senha
 ) {
 
 }

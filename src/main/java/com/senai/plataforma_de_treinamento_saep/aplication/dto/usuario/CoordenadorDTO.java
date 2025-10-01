@@ -7,14 +7,16 @@ public record CoordenadorDTO(
         Long id,
         String nome,
         String cpf,
-        String senha
+        String senha,
+        boolean status
 ) {
     public static CoordenadorDTO toDTO(Coordenador coordenador) {
         return new CoordenadorDTO(
                 coordenador.getId(),
                 coordenador.getNome(),
                 coordenador.getCpf(),
-                coordenador.getSenha()
+                coordenador.getSenha(),
+                coordenador.isStatus()
         );
     }
 

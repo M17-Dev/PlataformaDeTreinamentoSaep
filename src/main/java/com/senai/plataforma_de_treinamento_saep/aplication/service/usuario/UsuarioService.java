@@ -1,7 +1,9 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import jakarta.transaction.Transactional;
@@ -20,9 +22,9 @@ public class UsuarioService {
     private final UsuarioServiceDomain usuarioSD;
 
     @Transactional
-    public void cadastrarUsuario(UsuarioDTO dto) {
+    public Usuario cadastrarUsuario(UsuarioDTO dto) {
         usuarioSD.verificarCpfExistente(dto.cpf());
-        usuarioRepo.save(dto.fromDTO());
+        return usuarioRepo.save(dto.fromDTO());
     }
 
     public List<UsuarioDTO> listarUsuariosAtivos() {
@@ -43,16 +45,16 @@ public class UsuarioService {
                 );
     }
 
-    public boolean atualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
+    public UsuarioDTO atualizarUsuario(Long id, UsuarioUpdateDTO usuarioDto) {
         return usuarioRepo.findById(id)
                 .map(
                         usuario -> {
-                            atualizarInfos(usuario, usuarioDTO);
-                            usuarioRepo.save(usuario);
-                            return true;
+                            atualizarInfos(usuario, usuarioDto);
+                            Usuario usuarioAtualizado =  usuarioRepo.save(usuario);
+                            return UsuarioDTO.toDTO(usuarioAtualizado);
                         }
                 )
-                .orElse(false);
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario dono do ID: " + id + " não encontrado"));
     }
 
     public boolean inativarUsuario(Long id) {
@@ -85,7 +87,7 @@ public class UsuarioService {
                 .orElse(false);
     }
 
-    private void atualizarInfos(Usuario usuario, UsuarioDTO dto) {
+    private void atualizarInfos(Usuario usuario, UsuarioUpdateDTO dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             usuario.setNome(dto.nome());
         }

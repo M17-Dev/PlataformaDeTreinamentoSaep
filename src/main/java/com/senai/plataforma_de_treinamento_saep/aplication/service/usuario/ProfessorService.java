@@ -1,7 +1,9 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.ProfessorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +20,9 @@ public class ProfessorService {
     private final ProfessorRepository profRepo;
     private final UsuarioServiceDomain usuarioSD;
 
-    public void cadastrarProfessor(ProfessorDTO dto) {
+    public Professor cadastrarProfessor(ProfessorDTO dto) {
         usuarioSD.verificarCpfExistente(dto.cpf());
-        profRepo.save(dto.fromDto());
+        return profRepo.save(dto.fromDto());
     }
 
     public List<ProfessorDTO> listarProfessoresAtivos() {
@@ -41,16 +43,16 @@ public class ProfessorService {
                 );
     }
 
-    public boolean atualizarProfessor(Long id, ProfessorDTO profDTO) {
+    public ProfessorDTO atualizarProfessor(Long id, UsuarioUpdateDTO profDTO) {
         return profRepo.findById(id)
                 .map(
                         professor -> {
                             atualizarInfos(professor, profDTO);
-                            profRepo.save(professor);
-                            return true;
+                            Professor professorAtualizado = profRepo.save(professor);
+                            return ProfessorDTO.toDTO(professorAtualizado);
                         }
                 )
-                .orElse(false);
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Professor dono do ID: " + id + " não encontrado"));
     }
 
     public boolean inativarProfessor(Long id) {
@@ -83,7 +85,7 @@ public class ProfessorService {
                 .orElse(false);
     }
 
-    private void atualizarInfos(Professor prof, ProfessorDTO dto) {
+    private void atualizarInfos(Professor prof, UsuarioUpdateDTO dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             prof.setNome(dto.nome());
         }
