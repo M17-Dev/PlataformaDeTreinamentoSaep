@@ -16,7 +16,8 @@ public record QuestaoDTO(
         String imagem,
         Long professorId,
         List<RespostaDTO> respostas,
-        List<Long> unidadeCurricularIds
+        List<Long> unidadeCurricularIds,
+        boolean status
 ) {
 
     public static QuestaoDTO toDTO(Questao questao) {
@@ -29,7 +30,7 @@ public record QuestaoDTO(
                         resposta.isCertoOuErrado()))
                 .collect(Collectors.toList());
 
-        List<Long> ucIds = questao.getUnidadeCurriculars().stream()
+        List<Long> ucIds = questao.getUnidadeCurriculares().stream()
                 .map(UnidadeCurricular::getId)
                 .collect(Collectors.toList());
 
@@ -41,7 +42,8 @@ public record QuestaoDTO(
                 questao.getImagem(),
                 profId,
                 respostasDTO,
-                ucIds
+                ucIds,
+                questao.isStatus()
         );
     }
 
@@ -67,6 +69,22 @@ public record QuestaoDTO(
             questao.setRespostas(Collections.emptyList());
         }
 
+        if (this.unidadeCurricularIds != null) {
+            List<UnidadeCurricular> novasUnidadesCurriculares = this.unidadeCurricularIds.stream()
+                    .map(dto -> {
+                        UnidadeCurricular unidadeCurricular = new UnidadeCurricular();
+                        unidadeCurricular.setNome(unidadeCurricular.getNome());
+                        unidadeCurricular.setCurso(unidadeCurricular.getCurso());
+                        unidadeCurricular.setQuestoes(unidadeCurricular.getQuestoes());
+                        return unidadeCurricular;
+                    })
+                    .collect(Collectors.toList());
+            questao.setUnidadeCurriculares(novasUnidadesCurriculares);
+        } else {
+            questao.setRespostas(Collections.emptyList());
+        }
+
+        questao.setStatus(true);
         return questao;
     }
 }

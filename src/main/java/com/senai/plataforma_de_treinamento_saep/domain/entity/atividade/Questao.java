@@ -23,15 +23,15 @@ public class Questao {
     protected Long id;
 
     //Para os textos da questão em sí
-    protected String titulo;
-    protected String introducao;
-    protected String Pergunta;
-    protected String imagem;
-    protected boolean acertouOuErrouQuestao;
+    private String titulo;
+    private String introducao;
+    private String Pergunta;
+    private String imagem;
+    private boolean acertouOuErrouQuestao;
 
     @ManyToOne
     @JoinColumn(name = "professor_id")
-    protected Professor professorID;
+    private Professor professorID;
 
 
     // --- RELACIONAMENTOS CORRIGIDOS ---
@@ -43,7 +43,7 @@ public class Questao {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    protected List<Resposta> respostas = new ArrayList<>();
+    private List<Resposta> respostas = new ArrayList<>();
 
 
     // 2. Relacionamento com UnidadeCurricular (ManyToMany)
@@ -54,5 +54,7 @@ public class Questao {
             joinColumns = @JoinColumn(name = "questao_id"),
             inverseJoinColumns = @JoinColumn(name = "unidade_curricular_id")
     )
-    protected List<UnidadeCurricular> unidadeCurriculars = new ArrayList<>();
+    private List<UnidadeCurricular> unidadeCurriculares = new ArrayList<>();
+
+    private boolean status;
 }

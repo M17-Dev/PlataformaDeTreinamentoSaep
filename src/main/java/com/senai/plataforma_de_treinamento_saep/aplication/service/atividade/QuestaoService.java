@@ -3,6 +3,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,8 @@ public class QuestaoService {
 
     private final QuestaoRepository questaoRepo;
 
-    public void cadastrarQuestao (QuestaoDTO dto){
-        questaoRepo.save(dto.fromDTO());
+    public Questao cadastrarQuestao(QuestaoDTO dto){
+        return questaoRepo.save(dto.fromDTO());
     }
 
     public List<QuestaoDTO> listarQuestoesAtivas() {
@@ -32,25 +33,23 @@ public class QuestaoService {
                 );
     }
 
-    public Optional<QuestaoDTO>buscarPorId(Long id) {
+    public Optional<QuestaoDTO> buscarPorId(Long id) {
         return questaoRepo.findById(id)
                 .map(
                         QuestaoDTO::toDTO
                 );
     }
 
-
-
-    public boolean atualizarQuestao(Long id, QuestaoDTO dto) {
+    public QuestaoDTO atualizarQuestao(Long id, QuestaoDTO dto) {
         return questaoRepo.findById(id)
                 .map(
                         questao -> {
                             atualizarInfos(questao, dto);
-                            questaoRepo.save(questao);
-                            return true;
+                            Questao questaoAtualizada =  questaoRepo.save(questao);
+                            return QuestaoDTO.toDTO(questaoAtualizada);
                         }
                 )
-                .orElse(false);
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Questão com o ID:" + id + " não encontrada."));
     }
 
     public boolean inativarQuestao(Long id) {
@@ -83,13 +82,24 @@ public class QuestaoService {
                 .orElse(false);
     }
 
-    private void atualizarInfos(Questao coord, QuestaoDTO dto) {
-        if (dto.() != null && !dto.nome().isBlank()) {
-            coord.setNome(dto.nome());
+    private void atualizarInfos(Questao questao, QuestaoDTO dto) {
+        if (dto.titulo() != null && !dto.titulo().isBlank()) {
+            questao.setTitulo(dto.titulo());
         }
-        if (dto.senha() != null && !dto.senha().isBlank()) {
-            coord.setSenha(dto.senha());
+        if (dto.introducao() != null && !dto.introducao().isBlank()) {
+            questao.setIntroducao(dto.introducao());
+        }
+        if (dto.pergunta() != null && !dto.pergunta().isBlank()) {
+            questao.setPergunta(dto.pergunta());
+        }
+        if (dto.imagem() != null && !dto.imagem().isBlank()){
+            questao.setImagem(dto.imagem());
+        }
+        if (dto.respostas() != null && !dto.respostas().isEmpty()){
+            questao.setPergunta(dto.pergunta());
+        }
+        if (dto.respostas() != null && !dto.respostas().isEmpty()){
+            questao.setPergunta(dto.pergunta());
         }
     }
-
 }
