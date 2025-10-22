@@ -3,8 +3,12 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +21,20 @@ import java.util.stream.Collectors;
 public class QuestaoService {
 
     private final QuestaoRepository questaoRepo;
+    private final UnidadeCurricularRepository ucRepo;
+    private final ProfessorRepository profRepo;
 
     public Questao cadastrarQuestao(QuestaoDTO dto){
+        if (dto.professorId() == null) {
+            throw new RuntimeException("Um professor é obrigatório para cadastrar uma questão.");
+        }
+        if (dto.respostas() != null && dto.respostas().size() > 5) {
+            throw new RuntimeException("Uma questão não pode ter mais de 5 respostas.");
+        }
+
+        Questao questao = dto.fromDTO();
+        associarRelacionamentos(questao, dto);
+
         return questaoRepo.save(dto.fromDTO());
     }
 
@@ -45,6 +61,7 @@ public class QuestaoService {
                 .map(
                         questao -> {
                             atualizarInfos(questao, dto);
+                            associarRelacionamentos(questao, dto);
                             Questao questaoAtualizada =  questaoRepo.save(questao);
                             return QuestaoDTO.toDTO(questaoAtualizada);
                         }
@@ -55,7 +72,7 @@ public class QuestaoService {
     public boolean inativarQuestao(Long id) {
         return questaoRepo.findById(id)
                 .filter(
-                        QuestaoDTO::isStatus
+                        Questao::isStatus
                 )
                 .map(
                         questao -> {
@@ -100,6 +117,30 @@ public class QuestaoService {
         }
         if (dto.respostas() != null && !dto.respostas().isEmpty()){
             questao.setPergunta(dto.pergunta());
+        }
+    }
+
+    private void associarRelacionamentos(Questao questao, QuestaoDTO dto){
+        // 1. Associa o Professor
+        if (dto.professorId() != null) {
+            Professor prof = profRepo.findById(dto.professorId())
+                    .orElseThrow(() -> new RuntimeException("Professor não encontrado."));
+            questao.setProfessorID(prof);
+        }
+
+        // 2. Associa as Unidades Curriculares
+        // Se a lista no DTO for nula ou vazia, define uma lista vazia na entidade.
+        if (dto.unidadeCurricularIds() != null && !dto.unidadeCurricularIds().isEmpty()) {
+            List<UnidadeCurricular> ucs = ucRepo.findAllById(dto.unidadeCurricularIds());
+
+            if (ucs.size() != dto.unidadeCurricularIds().size()) {
+                throw new RuntimeException("Uma ou mais Unidades Curriculares não foram encontradas.");
+            }
+            // Define a nova lista de UCs na questão
+            questao.setUnidadeCurriculares(ucs);
+        } else {
+            // Se o front-end mandar uma lista vazia, remove todas as associações.
+            questao.getUnidadeCurriculares().clear();
         }
     }
 }

@@ -81,7 +81,7 @@ public record QuestaoDTO(
                     .collect(Collectors.toList());
             questao.setUnidadeCurriculares(novasUnidadesCurriculares);
         } else {
-            questao.setRespostas(Collections.emptyList());
+            questao.setUnidadeCurriculares(Collections.emptyList());
         }
 
         questao.setStatus(true);
