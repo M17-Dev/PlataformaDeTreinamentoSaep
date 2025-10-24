@@ -54,7 +54,7 @@ public class Questao {
             joinColumns = @JoinColumn(name = "questao_id"),
             inverseJoinColumns = @JoinColumn(name = "unidade_curricular_id")
     )
-    private List<UnidadeCurricular> unidadeCurriculares = new ArrayList<>();
+    private List<UnidadeCurricular> unidadesCurriculares = new ArrayList<>();
 
     private boolean status;
 }

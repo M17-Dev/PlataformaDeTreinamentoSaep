@@ -30,7 +30,7 @@ public record QuestaoDTO(
                         resposta.isCertoOuErrado()))
                 .collect(Collectors.toList());
 
-        List<Long> ucIds = questao.getUnidadeCurriculares().stream()
+        List<Long> ucIds = questao.getUnidadesCurriculares().stream()
                 .map(UnidadeCurricular::getId)
                 .collect(Collectors.toList());
 
@@ -79,9 +79,9 @@ public record QuestaoDTO(
                         return unidadeCurricular;
                     })
                     .collect(Collectors.toList());
-            questao.setUnidadeCurriculares(novasUnidadesCurriculares);
+            questao.setUnidadesCurriculares(novasUnidadesCurriculares);
         } else {
-            questao.setUnidadeCurriculares(Collections.emptyList());
+            questao.setUnidadesCurriculares(Collections.emptyList());
         }
 
         questao.setStatus(true);

@@ -137,10 +137,10 @@ public class QuestaoService {
                 throw new RuntimeException("Uma ou mais Unidades Curriculares não foram encontradas.");
             }
             // Define a nova lista de UCs na questão
-            questao.setUnidadeCurriculares(ucs);
+            questao.setUnidadesCurriculares(ucs);
         } else {
             // Se o front-end mandar uma lista vazia, remove todas as associações.
-            questao.getUnidadeCurriculares().clear();
+            questao.getUnidadesCurriculares().clear();
         }
     }
 }

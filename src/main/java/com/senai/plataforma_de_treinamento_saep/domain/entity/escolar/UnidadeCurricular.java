@@ -22,7 +22,7 @@ public class UnidadeCurricular {
     // outros campos da unidade curricular...
 
     // Adicione este campo na sua classe
-    @ManyToMany(mappedBy = "unidadeCurriculars")
+    @ManyToMany(mappedBy = "unidadesCurriculares")
     private List<Questao> questoes = new ArrayList<>();
 
     // Muitas Unidades Curriculares pertencem a Um Curso
