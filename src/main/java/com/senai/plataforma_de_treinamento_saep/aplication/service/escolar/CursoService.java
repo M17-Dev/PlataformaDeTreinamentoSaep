@@ -1,10 +1,7 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.escolar;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.escolar.CursoDTO;
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
-import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.CursoRepository;
 import lombok.RequiredArgsConstructor;
