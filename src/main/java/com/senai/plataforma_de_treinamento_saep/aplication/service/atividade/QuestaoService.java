@@ -28,14 +28,14 @@ public class QuestaoService {
         if (dto.professorId() == null) {
             throw new RuntimeException("Um professor é obrigatório para cadastrar uma questão.");
         }
-        if (dto.respostas() != null && dto.respostas().size() > 5) {
+        if (dto.respostas() != null && dto.respostas().size() > 4) {
             throw new RuntimeException("Uma questão não pode ter mais de 5 respostas.");
         }
 
         Questao questao = dto.fromDTO();
         associarRelacionamentos(questao, dto);
 
-        return questaoRepo.save(dto.fromDTO());
+        return questaoRepo.save(questao);
     }
 
     public List<QuestaoDTO> listarQuestoesAtivas() {
@@ -113,10 +113,7 @@ public class QuestaoService {
             questao.setImagem(dto.imagem());
         }
         if (dto.respostas() != null && !dto.respostas().isEmpty()){
-            questao.setPergunta(dto.pergunta());
-        }
-        if (dto.respostas() != null && !dto.respostas().isEmpty()){
-            questao.setPergunta(dto.pergunta());
+            questao.setRespostas(dto.fromDTO().getRespostas());
         }
     }
 
