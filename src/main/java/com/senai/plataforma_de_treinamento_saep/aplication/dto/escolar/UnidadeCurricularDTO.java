@@ -6,7 +6,8 @@ public record UnidadeCurricularDTO(
         Long id,
         String nome,
         Long cursoId,
-        String nomeCurso //passa o nome do curso na unidade curricular pra poupar tempo
+        String nomeCurso, //passa o nome do curso na unidade curricular pra poupar tempo
+        boolean status
 ) {
 
     public static UnidadeCurricularDTO toDTO(UnidadeCurricular unidadeCurricular) {
@@ -17,13 +18,15 @@ public record UnidadeCurricularDTO(
                 unidadeCurricular.getId(),
                 unidadeCurricular.getNome(),
                 idDoCurso,
-                nomeDoCurso
+                nomeDoCurso,
+                unidadeCurricular.isStatus()
         );
     }
 
     public UnidadeCurricular fromDTO() {
         UnidadeCurricular unidadeCurricular = new UnidadeCurricular();
-        unidadeCurricular.setNome(this.nome);
+        unidadeCurricular.setNome(nome);
+        unidadeCurricular.setStatus(true);
         return unidadeCurricular;
     }
 }
