@@ -29,4 +29,6 @@ public class UnidadeCurricular {
     @ManyToOne(fetch = FetchType.LAZY) // Opcional, mas bom para performance Miguel: nsei oque faz pergunta pra ia
     @JoinColumn(name = "curso_id")
     private Curso curso;
+
+    private boolean status;
 }
