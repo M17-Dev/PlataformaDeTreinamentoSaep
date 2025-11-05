@@ -17,10 +17,10 @@ public class CoordenadorController {
     private final CoordenadorService coordService;
 
     @PostMapping
-    public ResponseEntity<Coordenador> cadastrarCoordenador(@RequestBody CoordenadorDTO dto) {
+    public ResponseEntity<CoordenadorDTO> cadastrarCoordenador(@RequestBody CoordenadorDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(coordService.cadastrarCoordenador(dto));
+                .body(CoordenadorDTO.toDTO(coordService.cadastrarCoordenador(dto)));
     }
 
     @GetMapping

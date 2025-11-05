@@ -18,10 +18,10 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<Usuario> cadastrarAluno(@RequestBody UsuarioDTO dto) {
+    public ResponseEntity<UsuarioDTO> cadastrarAluno(@RequestBody UsuarioDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(usuarioService.cadastrarUsuario(dto));
+                .body(UsuarioDTO.toDTO(usuarioService.cadastrarUsuario(dto)));
     }
 
     @GetMapping

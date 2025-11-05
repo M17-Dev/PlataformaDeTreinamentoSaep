@@ -22,21 +22,15 @@ public class Questao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    //Para os textos da questão em sí
     private String titulo;
     private String introducao;
-    private String Pergunta;
+    private String pergunta;
     private String imagem;
 
     @ManyToOne
     @JoinColumn(name = "professor_id")
-    private Professor professorID;
+    private Professor professorId;
 
-
-    // --- RELACIONAMENTOS CORRIGIDOS ---
-
-    // 1. Relacionamento com Resposta (OneToMany)
-    // Uma Questao tem muitas Respostas.
     @OneToMany(
             mappedBy = "questao",
             cascade = CascadeType.ALL,
@@ -44,16 +38,9 @@ public class Questao {
     )
     private List<Resposta> respostas = new ArrayList<>();
 
-
-    // 2. Relacionamento com UnidadeCurricular (ManyToMany)
-    // Uma Questao pode estar em muitas Unidades Curriculares.
-    @ManyToMany
-    @JoinTable(
-            name = "questao_unidade_curricular",
-            joinColumns = @JoinColumn(name = "questao_id"),
-            inverseJoinColumns = @JoinColumn(name = "unidade_curricular_id")
-    )
-    private List<UnidadeCurricular> unidadesCurriculares = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "unidade_curricular")
+    private UnidadeCurricular unidadeCurricular;
 
     private boolean status;
 }
