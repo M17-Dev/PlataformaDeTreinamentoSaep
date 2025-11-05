@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Curso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long id;
-
-    protected String nome;
+    private Long id;
+    private String nome;
+    private boolean status;
 }

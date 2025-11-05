@@ -27,7 +27,6 @@ public class Questao {
     private String introducao;
     private String Pergunta;
     private String imagem;
-    private boolean acertouOuErrouQuestao;
 
     @ManyToOne
     @JoinColumn(name = "professor_id")
