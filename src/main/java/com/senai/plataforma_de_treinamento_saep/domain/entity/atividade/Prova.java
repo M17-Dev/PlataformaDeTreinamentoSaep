@@ -5,6 +5,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Prova {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +43,7 @@ public class Prova {
     private int qtdAcertos;
 
     @Enumerated(EnumType.STRING)
-    private NivelDeDificuldade nivelProva;
+    private NivelDeDificuldade nivelDeDificuldade;
 
     private boolean status;
 }
