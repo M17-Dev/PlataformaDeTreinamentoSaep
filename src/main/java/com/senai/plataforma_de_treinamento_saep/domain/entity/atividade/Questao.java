@@ -1,9 +1,8 @@
-// Copie e cole este código inteiro no seu arquivo Questao.java
-
 package com.senai.plataforma_de_treinamento_saep.domain.entity.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
+import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,6 +40,9 @@ public class Questao {
     @ManyToOne
     @JoinColumn(name = "unidade_curricular")
     private UnidadeCurricular unidadeCurricular;
+
+    @Enumerated(EnumType.STRING)
+    private NivelDeDificuldade nivelDeDificuldade;
 
     private boolean status;
 }

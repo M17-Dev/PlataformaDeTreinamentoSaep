@@ -1,6 +1,7 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
+import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ public record QuestaoDTO(
         Long professorId,
         List<RespostaDTO> respostas,
         Long unidadeCurricularId,
+        NivelDeDificuldade nivelDeDificuldade,
         boolean status
 ) {
 
@@ -37,6 +39,7 @@ public record QuestaoDTO(
                 profId,
                 respostasDTO,
                 ucId,
+                questao.getNivelDeDificuldade(),
                 questao.isStatus()
         );
     }
@@ -47,6 +50,7 @@ public record QuestaoDTO(
         questao.setIntroducao(this.introducao);
         questao.setPergunta(this.pergunta);
         questao.setImagem(this.imagem);
+        questao.setNivelDeDificuldade(this.nivelDeDificuldade);
         questao.setStatus(true);
         return questao;
     }

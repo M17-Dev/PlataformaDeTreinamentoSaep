@@ -33,4 +33,3 @@ public abstract class Usuario {
         this.status = status;
     }
 }
-
