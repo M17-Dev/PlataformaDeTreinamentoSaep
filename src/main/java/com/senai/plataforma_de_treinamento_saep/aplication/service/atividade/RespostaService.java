@@ -8,6 +8,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.Resp
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,15 +17,23 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RespostaService {
 
     private final RespostaRepository respostaRepo;
     private final QuestaoRepository questaoRepo;
 
     public RespostaDTO cadastrarResposta(RespostaDTO respostaDTO) {
+        if(respostaDTO.idQuestao() == null) {
+            throw new RuntimeException("A 'idQuestao' é obrigatória para a criação de uma resposta.");
+        }
+
         Resposta resposta = respostaDTO.fromDTO();
-        associarRelacionamentos(respostaDTO, resposta);
+
+        Questao questao = buscarEValidarQuestaoParaAssociacao(respostaDTO.idQuestao());
+        resposta.setQuestao(questao);
         respostaRepo.save(resposta);
+
         return RespostaDTO.toDTO(respostaRepo.save(resposta));
     }
 
@@ -42,44 +51,54 @@ public class RespostaService {
     }
 
     public Optional<RespostaDTO> buscarPorId(Long id) {
-        return respostaRepo.findById(id).map(RespostaDTO::toDTO);
+        return respostaRepo.findById(id).filter(Resposta::isStatus).map(RespostaDTO::toDTO);
     }
 
-    public Optional<RespostaDTO> atualizarResposta(RespostaDTO respostaDTO) {
-        return respostaRepo.findById(respostaDTO.id()).map(resposta -> {
+    public Optional<RespostaDTO> atualizarResposta(RespostaDTO respostaDTO, Long id) {
+        return respostaRepo.findById(id).map(resposta -> {
            atualizarInfosResposta(resposta, respostaDTO);
            return RespostaDTO.toDTO(respostaRepo.save(resposta));
         });
     }
 
-    public void atualizarInfosResposta(Resposta resposta, RespostaDTO respostaAtualizada) {
-        associarRelacionamentos(respostaAtualizada, resposta);
+    public boolean deletarResposta(Long id) {
+        return respostaRepo.findById(id).map(resposta -> {
+            resposta.setStatus(false);
+            respostaRepo.save(resposta);
+            return true;
+        }).orElse(false);
+    }
+
+    private void atualizarInfosResposta(Resposta resposta, RespostaDTO respostaAtualizada) {
         if(!respostaAtualizada.texto().isBlank()) {
             resposta.setTexto(respostaAtualizada.texto());
         }
         if(respostaAtualizada.certaOuErrada() != null) {
             resposta.setCertoOuErrado(respostaAtualizada.certaOuErrada());
         }
+
+        Long idNovaQuestao = respostaAtualizada.idQuestao();
+        Long idQuestaoAtual = resposta.getQuestao().getId();
+
+        if (idNovaQuestao != null && !Objects.equals(idNovaQuestao, idQuestaoAtual)) {
+            Questao novaQuestao = buscarEValidarQuestaoParaAssociacao(idNovaQuestao);
+            resposta.setQuestao(novaQuestao);
+        }
     }
 
-    private void associarRelacionamentos(RespostaDTO respostaDTO, Resposta resposta) {
-        if(respostaRepo.findById(resposta.getId()).isPresent()) {
-            boolean questaoIgual = Objects.equals(respostaDTO.idQuestao(), resposta.getQuestao().getId());
+    private Questao buscarEValidarQuestaoParaAssociacao(Long idQuestao) {
+        // 1. Buscar a Questão
+        Questao questao = questaoRepo.findById(idQuestao)
+                .orElseThrow(() -> new RuntimeException("Questão não encontrada. ID: " + idQuestao));
 
-            if(!questaoIgual) {
-                Questao questao = questaoRepo.findById(respostaDTO.idQuestao())
-                        .orElseThrow(() -> new RuntimeException("Questão não encontrada."));
-                resposta.setQuestao(questao);
-            }
-        } else if(respostaDTO.idQuestao() != null) {
-            Questao questao = questaoRepo.findById(respostaDTO.idQuestao())
-                    .orElseThrow(() -> new RuntimeException("Questão não encontrada."));
+        // 2. Contar respostas ATIVAS (status == true)
+        int respostasAtivas = respostaRepo.countByQuestaoIdAndStatus(idQuestao, true);
 
-            if(questao.getRespostas().size() > 4) {
-                throw new RuntimeException("Uma questão não pode ter mais de 5 respostas.");
-            }
-
-            resposta.setQuestao(questao);
+        // 3. Aplicar a regra de negócio
+        if (respostasAtivas >= 5) {
+            throw new RuntimeException("A Questão (ID: " + idQuestao + ") já possui o limite de 5 respostas ativas.");
         }
+
+        return questao;
     }
 }

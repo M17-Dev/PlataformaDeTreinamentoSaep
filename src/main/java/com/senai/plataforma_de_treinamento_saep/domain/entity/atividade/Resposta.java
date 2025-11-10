@@ -18,6 +18,7 @@ public class Resposta {
     // Adicione os campos da resposta, como o texto e se é a correta
     protected String texto;
     protected boolean certoOuErrado;
+    protected boolean status;
 
     // 1. Muitas Respostas pertencem a Uma Questão.
     // 2. @JoinColumn cria a chave estrangeira na tabela Resposta.
