@@ -1,10 +1,7 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
-import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
-import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,22 +13,19 @@ public record QuestaoDTO(
         String imagem,
         Long professorId,
         List<RespostaDTO> respostas,
-        List<Long> unidadeCurricularIds,
+        Long unidadeCurricularId,
         boolean status
 ) {
 
     public static QuestaoDTO toDTO(Questao questao) {
-        Long profId = (questao.getProfessorID() != null) ? questao.getProfessorID().getId() : null;
+        Long profId = (questao.getProfessorId() != null) ? questao.getProfessorId().getId() : null;
+        Long ucId = (questao.getUnidadeCurricular() != null) ? questao.getUnidadeCurricular().getId() : null;
 
         List<RespostaDTO> respostasDTO = questao.getRespostas().stream()
                 .map(resposta -> new RespostaDTO(
                         resposta.getId(),
                         resposta.getTexto(),
                         resposta.isCertoOuErrado()))
-                .collect(Collectors.toList());
-
-        List<Long> ucIds = questao.getUnidadesCurriculares().stream()
-                .map(UnidadeCurricular::getId)
                 .collect(Collectors.toList());
 
         return new QuestaoDTO(
@@ -42,7 +36,7 @@ public record QuestaoDTO(
                 questao.getImagem(),
                 profId,
                 respostasDTO,
-                ucIds,
+                ucId,
                 questao.isStatus()
         );
     }
@@ -53,37 +47,6 @@ public record QuestaoDTO(
         questao.setIntroducao(this.introducao);
         questao.setPergunta(this.pergunta);
         questao.setImagem(this.imagem);
-
-        if (this.respostas != null) {
-            List<Resposta> novasRespostas = this.respostas.stream()
-                    .map(dto -> {
-                        Resposta resposta = new Resposta();
-                        resposta.setTexto(dto.texto());
-                        resposta.setCertoOuErrado(dto.certaOuErrada());
-                        resposta.setQuestao(questao);
-                        return resposta;
-                    })
-                    .collect(Collectors.toList());
-            questao.setRespostas(novasRespostas);
-        } else {
-            questao.setRespostas(Collections.emptyList());
-        }
-
-        if (this.unidadeCurricularIds != null) {
-            List<UnidadeCurricular> novasUnidadesCurriculares = this.unidadeCurricularIds.stream()
-                    .map(dto -> {
-                        UnidadeCurricular unidadeCurricular = new UnidadeCurricular();
-                        unidadeCurricular.setNome(unidadeCurricular.getNome());
-                        unidadeCurricular.setCurso(unidadeCurricular.getCurso());
-                        unidadeCurricular.setQuestoes(unidadeCurricular.getQuestoes());
-                        return unidadeCurricular;
-                    })
-                    .collect(Collectors.toList());
-            questao.setUnidadesCurriculares(novasUnidadesCurriculares);
-        } else {
-            questao.setUnidadesCurriculares(Collections.emptyList());
-        }
-
         questao.setStatus(true);
         return questao;
     }

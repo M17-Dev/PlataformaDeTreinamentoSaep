@@ -17,10 +17,10 @@ public class AlunoController {
     private final AlunoService alunoService;
 
     @PostMapping
-    public ResponseEntity<Aluno> cadastrarAluno(@RequestBody AlunoDTO dto) {
+    public ResponseEntity<AlunoDTO> cadastrarAluno(@RequestBody AlunoDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(alunoService.cadastrarAluno(dto));
+                .body(AlunoDTO.toDTO(alunoService.cadastrarAluno(dto)));
     }
 
     @GetMapping

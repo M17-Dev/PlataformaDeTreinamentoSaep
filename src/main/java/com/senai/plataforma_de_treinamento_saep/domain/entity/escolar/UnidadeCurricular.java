@@ -19,13 +19,10 @@ public class UnidadeCurricular {
     private Long id;
 
     private String nome;
-    // outros campos da unidade curricular...
 
-    // Adicione este campo na sua classe
-    @ManyToMany(mappedBy = "unidadesCurriculares")
+    @OneToMany(mappedBy = "unidadeCurricular")
     private List<Questao> questoes = new ArrayList<>();
 
-    // Muitas Unidades Curriculares pertencem a Um Curso
     @ManyToOne(fetch = FetchType.LAZY) // Opcional, mas bom para performance Miguel: nsei oque faz pergunta pra ia
     @JoinColumn(name = "curso_id")
     private Curso curso;

@@ -17,10 +17,10 @@ public class ProfessorController {
     private final ProfessorService profService;
 
     @PostMapping
-    public ResponseEntity<Professor> cadastrarProfessor(@RequestBody ProfessorDTO dto) {
+    public ResponseEntity<ProfessorDTO> cadastrarProfessor(@RequestBody ProfessorDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(profService.cadastrarProfessor(dto));
+                .body(ProfessorDTO.toDTO(profService.cadastrarProfessor(dto)));
     }
 
     @GetMapping

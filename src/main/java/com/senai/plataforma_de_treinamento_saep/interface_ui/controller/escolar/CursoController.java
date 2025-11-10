@@ -2,7 +2,6 @@ package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.escolar
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.escolar.CursoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.escolar.CursoService;
-import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +15,10 @@ public class CursoController {
     private final CursoService cursoService;
 
     @PostMapping
-    public ResponseEntity<Curso> cadastrarCurso(@RequestBody CursoDTO dto) {
+    public ResponseEntity<CursoDTO> cadastrarCurso(@RequestBody CursoDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(cursoService.cadastrarCurso(dto));
+                .body(CursoDTO.toDTO(cursoService.cadastrarCurso(dto)));
     }
 
     @GetMapping

@@ -3,6 +3,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
@@ -112,32 +113,34 @@ public class QuestaoService {
         if (dto.imagem() != null && !dto.imagem().isBlank()){
             questao.setImagem(dto.imagem());
         }
-        if (dto.respostas() != null && !dto.respostas().isEmpty()){
-            questao.setRespostas(dto.fromDTO().getRespostas());
-        }
     }
 
     private void associarRelacionamentos(Questao questao, QuestaoDTO dto){
-        // 1. Associa o Professor
         if (dto.professorId() != null) {
             Professor prof = profRepo.findById(dto.professorId())
                     .orElseThrow(() -> new RuntimeException("Professor não encontrado."));
-            questao.setProfessorID(prof);
+            questao.setProfessorId(prof);
         }
 
-        // 2. Associa as Unidades Curriculares
-        // Se a lista no DTO for nula ou vazia, define uma lista vazia na entidade.
-        if (dto.unidadeCurricularIds() != null && !dto.unidadeCurricularIds().isEmpty()) {
-            List<UnidadeCurricular> ucs = ucRepo.findAllById(dto.unidadeCurricularIds());
+        if (dto.unidadeCurricularId() != null) {
+            UnidadeCurricular uc = ucRepo.findById(dto.unidadeCurricularId())
+                    .orElseThrow(() -> new RuntimeException("Unidade Curricular com ID " + dto.unidadeCurricularId() + " não encontrada."));
+            questao.setUnidadeCurricular(uc);
+        }
 
-            if (ucs.size() != dto.unidadeCurricularIds().size()) {
-                throw new RuntimeException("Uma ou mais Unidades Curriculares não foram encontradas.");
-            }
-            // Define a nova lista de UCs na questão
-            questao.setUnidadesCurriculares(ucs);
-        } else {
-            // Se o front-end mandar uma lista vazia, remove todas as associações.
-            questao.getUnidadesCurriculares().clear();
+        if (dto.respostas() != null) {
+            List<Resposta> novasRespostas = dto.respostas().stream()
+                    .map(dtoResposta -> {
+                        Resposta resposta = new Resposta();
+                        resposta.setId(dtoResposta.id());
+                        resposta.setTexto(dtoResposta.texto());
+                        resposta.setCertoOuErrado(dtoResposta.certaOuErrada());
+                        resposta.setQuestao(questao);
+                        return resposta;
+                    })
+                    .toList();
+            questao.getRespostas().clear();
+            questao.getRespostas().addAll(novasRespostas);
         }
     }
 }

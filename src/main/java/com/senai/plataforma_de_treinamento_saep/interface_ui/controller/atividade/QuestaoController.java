@@ -2,7 +2,6 @@ package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.ativida
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.atividade.QuestaoService;
-import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +15,10 @@ public class QuestaoController {
     private final QuestaoService questaoService;
 
     @PostMapping
-    public ResponseEntity<Questao> cadastrarQuestao(@RequestBody QuestaoDTO dto) {
+    public ResponseEntity<QuestaoDTO> cadastrarQuestao(@RequestBody QuestaoDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(questaoService.cadastrarQuestao(dto));
+                .body(QuestaoDTO.toDTO(questaoService.cadastrarQuestao(dto)));
     }
 
     @GetMapping
