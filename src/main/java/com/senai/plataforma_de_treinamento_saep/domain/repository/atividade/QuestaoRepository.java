@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface QuestaoRepository extends JpaRepository<Questao, Long> {
     List<Questao> findByStatusTrue();
-    List<Questao> findByUnidadeCurricularENivelDeDificuldade(
+    List<Questao> findByUnidadeCurricularAndNivelDeDificuldade(
             UnidadeCurricular unidadeCurricular,
             NivelDeDificuldade nivelDeDificuldade
     );

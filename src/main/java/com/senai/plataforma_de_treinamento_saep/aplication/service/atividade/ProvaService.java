@@ -3,6 +3,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.ProvaDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,19 +29,33 @@ public class ProvaService {
     private final QuestaoRepository questaoRepo;
 
 
-    private ProvaDTO.ProvaResponseDTO cadastrarProva(ProvaDTO.ProvaRequestDTO dto){
+    public ProvaDTO.ProvaResponseDTO cadastrarProva(ProvaDTO.ProvaRequestDTO dto){
 
+        Prova prova = dto.toEntity();
+        associarRelacionamentos(prova, dto);
+
+        Prova provaSalva = provaRepo.save(prova);
+
+        return converterProvaParaResponseDto(provaSalva);
     }
 
-    //Métodos referentes ao "Response" da prova
-    public Optional<Prova> buscarEntidadeProvaPorId(Long id) {
-        return provaRepo.findById(id);
+    public List<ProvaDTO.ProvaResponseDTO> listarProvasAtivas(){
+        return provaRepo.findByStatusTrue()
+                .stream()
+                .map(
+                        this::converterProvaParaResponseDto
+                ).collect(
+                        Collectors.toList()
+                );
     }
 
-    public ProvaDTO.ProvaResponseDTO retornoCadastro(Long id) {
-        Prova prova = buscarEntidadeProvaPorId(id)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Prova não encontrada."));
+    public Optional<ProvaDTO.ProvaResponseDTO> buscarProvaPorId(Long id){
+        return Optional.of(provaRepo.findById(id)
+                .map(this::converterProvaParaResponseDto)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não foi encontrada.")));
+    }
 
+    private ProvaDTO.ProvaResponseDTO converterProvaParaResponseDto(Prova prova){
         List<QuestaoDTO> questoesFiltradas = buscarQuestoesFiltradas(
                 prova.getUnidadeCurricular(),
                 prova.getNivelDeDificuldade()
@@ -68,13 +84,41 @@ public class ProvaService {
         );
     }
 
+    //Métodos referentes ao "Response" da prova
+    private Optional<ProvaDTO.ProvaResponseDTO> buscarEntidadeProvaPorId(Long id) {
+        Optional<Prova> prova = provaRepo.findById(id);
+        return prova.map(this::converterProvaParaResponseDto);
+    }
+
     private List<QuestaoDTO> buscarQuestoesFiltradas(UnidadeCurricular uc, NivelDeDificuldade nivel) {
         if (uc == null || nivel == null) {
             return Collections.emptyList();
         }
-        return questaoRepo.findByUnidadeCurricularENivelDeDificuldade(uc, nivel)
+        return questaoRepo.findByUnidadeCurricularAndNivelDeDificuldade(uc, nivel)
                 .stream()
                 .map(QuestaoDTO::toDTO)
                 .toList();
+    }
+
+    private void associarRelacionamentos(Prova prova, ProvaDTO.ProvaRequestDTO dto){
+        UnidadeCurricular uc = ucRepo.findById(dto.unidadeCurricularId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("UC não encontrada."));
+        prova.setUnidadeCurricular(uc);
+
+        if (dto.alunoIds() != null && !dto.alunoIds().isEmpty()) {
+            List<Aluno> alunos = alunoRepo.findAllById(dto.alunoIds());
+
+            if (alunos.size() != dto.alunoIds().size()) {
+                throw new EntidadeNaoEncontradaException("Um ou mais Alunos da lista não foram encontrados.");
+            }
+
+            prova.setAlunos(alunos);
+        }
+
+        List<Questao> questoesFiltradas = questaoRepo.findByUnidadeCurricularAndNivelDeDificuldade(
+                uc,
+                dto.nivelDeDificuldade()
+        );
+        prova.setQtdQuestoes(questoesFiltradas.size());
     }
 }
