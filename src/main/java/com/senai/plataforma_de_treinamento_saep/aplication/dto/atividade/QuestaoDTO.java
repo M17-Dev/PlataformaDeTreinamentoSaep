@@ -25,6 +25,7 @@ public record QuestaoDTO(
                 .map(resposta -> new RespostaDTO(
                         resposta.getId(),
                         resposta.getTexto(),
+                        resposta.getQuestao().getId(),
                         resposta.isCertoOuErrado()))
                 .collect(Collectors.toList());
 
