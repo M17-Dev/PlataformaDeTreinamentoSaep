@@ -113,6 +113,9 @@ public class QuestaoService {
         if (dto.imagem() != null && !dto.imagem().isBlank()){
             questao.setImagem(dto.imagem());
         }
+        if (dto.nivelDeDificuldade() != null) {
+            questao.setNivelDeDificuldade(dto.nivelDeDificuldade());
+        }
     }
 
     private void associarRelacionamentos(Questao questao, QuestaoDTO dto){
