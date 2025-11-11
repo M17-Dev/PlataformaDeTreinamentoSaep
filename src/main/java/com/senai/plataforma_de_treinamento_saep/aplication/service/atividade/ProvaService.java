@@ -55,6 +55,7 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não foi encontrada.")));
     }
 
+    //Métodos referentes ao "Response" da prova
     private ProvaDTO.ProvaResponseDTO converterProvaParaResponseDto(Prova prova){
         List<QuestaoDTO> questoesFiltradas = buscarQuestoesFiltradas(
                 prova.getUnidadeCurricular(),
@@ -84,11 +85,10 @@ public class ProvaService {
         );
     }
 
-    //Métodos referentes ao "Response" da prova
-    private Optional<ProvaDTO.ProvaResponseDTO> buscarEntidadeProvaPorId(Long id) {
+    /*private Optional<ProvaDTO.ProvaResponseDTO> buscarEntidadeProvaPorId(Long id) {
         Optional<Prova> prova = provaRepo.findById(id);
         return prova.map(this::converterProvaParaResponseDto);
-    }
+    }*/
 
     private List<QuestaoDTO> buscarQuestoesFiltradas(UnidadeCurricular uc, NivelDeDificuldade nivel) {
         if (uc == null || nivel == null) {
