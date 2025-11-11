@@ -91,12 +91,12 @@ public class RespostaService {
         Questao questao = questaoRepo.findById(idQuestao)
                 .orElseThrow(() -> new RuntimeException("Questão não encontrada. ID: " + idQuestao));
 
-        // 2. Contar respostas ATIVAS (status == true)
+        // 2. Contar respostasId ATIVAS (status == true)
         int respostasAtivas = respostaRepo.countByQuestaoIdAndStatus(idQuestao, true);
 
         // 3. Aplicar a regra de negócio
         if (respostasAtivas >= 5) {
-            throw new RuntimeException("A Questão (ID: " + idQuestao + ") já possui o limite de 5 respostas ativas.");
+            throw new RuntimeException("A Questão (ID: " + idQuestao + ") já possui o limite de 5 respostasId ativas.");
         }
 
         return questao;

@@ -8,6 +8,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCur
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.RespostaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class QuestaoService {
 
     private final QuestaoRepository questaoRepo;
+    private final RespostaRepository respostaRepo;
     private final UnidadeCurricularRepository ucRepo;
     private final ProfessorRepository profRepo;
 
@@ -29,8 +31,8 @@ public class QuestaoService {
         if (dto.professorId() == null) {
             throw new RuntimeException("Um professor é obrigatório para cadastrar uma questão.");
         }
-        if (dto.respostas() != null && dto.respostas().size() > 4) {
-            throw new RuntimeException("Uma questão não pode ter mais de 5 respostas.");
+        if (dto.respostasId() != null && dto.respostasId().size() > 4) {
+            throw new RuntimeException("Uma questão não pode ter mais de 5 respostasId.");
         }
 
         Questao questao = dto.fromDTO();
@@ -121,7 +123,7 @@ public class QuestaoService {
     private void associarRelacionamentos(Questao questao, QuestaoDTO dto){
         if (dto.professorId() != null) {
             Professor prof = profRepo.findById(dto.professorId())
-                    .orElseThrow(() -> new RuntimeException("Professor não encontrado."));
+                    .orElseThrow(() -> new RuntimeException("Professor de ID: " + dto.professorId() + " não encontrado."));
             questao.setProfessorId(prof);
         }
 
@@ -131,16 +133,10 @@ public class QuestaoService {
             questao.setUnidadeCurricular(uc);
         }
 
-        if (dto.respostas() != null) {
-            List<Resposta> novasRespostas = dto.respostas().stream()
-                    .map(dtoResposta -> {
-                        Resposta resposta = new Resposta();
-                        resposta.setId(dtoResposta.id());
-                        resposta.setTexto(dtoResposta.texto());
-                        resposta.setCertoOuErrado(dtoResposta.certaOuErrada());
-                        resposta.setQuestao(questao);
-                        return resposta;
-                    })
+        if (dto.respostasId() != null) {
+            List<Resposta> novasRespostas = dto.respostasId().stream()
+                    .map(idResposta -> respostaRepo.findById(idResposta)
+                            .orElseThrow(() -> new EntidadeNaoEncontradaException("A resposta de ID: " + idResposta + " não foi encontrada.")))
                     .toList();
             questao.getRespostas().clear();
             questao.getRespostas().addAll(novasRespostas);

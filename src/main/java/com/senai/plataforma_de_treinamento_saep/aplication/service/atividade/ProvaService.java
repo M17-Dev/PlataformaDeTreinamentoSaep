@@ -63,9 +63,8 @@ public class ProvaService {
         );
         int qtdQuestoes = questoesFiltradas.size();
 
-        List<Long> alunoIds = prova.getAlunos().stream()
-                .map(Aluno::getId)
-                .toList();
+        List<Long> alunoIds = (prova.getAlunos() != null) ?
+                prova.getAlunos().stream().map(Aluno::getId).toList() : Collections.emptyList();
 
         Long ucId = (prova.getUnidadeCurricular() != null) ? prova.getUnidadeCurricular().getId() : null;
         String ucNome = (prova.getUnidadeCurricular() != null) ? prova.getUnidadeCurricular().getNome() : null;

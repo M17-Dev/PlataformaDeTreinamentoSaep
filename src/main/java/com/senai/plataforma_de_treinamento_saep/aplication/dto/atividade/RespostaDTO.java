@@ -1,6 +1,5 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade;
 
-import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 
 public record RespostaDTO(

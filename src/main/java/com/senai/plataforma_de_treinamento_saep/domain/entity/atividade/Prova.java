@@ -33,6 +33,7 @@ public class Prova {
             joinColumns = @JoinColumn(name = "prova_id"),
             inverseJoinColumns = @JoinColumn(name = "aluno_id")
     )
+    @Builder.Default
     private List<Aluno> alunos = new ArrayList<>();
 
     @ManyToOne
