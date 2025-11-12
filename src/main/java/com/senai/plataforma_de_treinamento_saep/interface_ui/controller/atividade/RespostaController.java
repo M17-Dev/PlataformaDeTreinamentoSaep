@@ -27,7 +27,13 @@ public class RespostaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<RespostaDTO> buscarPorId(@PathVariable Long id) {
-        return respostaService.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+
+        if(respostaService.buscarPorId(id).isPresent()) {
+            RespostaDTO respostaDTO = respostaService.buscarPorId(id).get();
+            return ResponseEntity.ok(respostaDTO);
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
