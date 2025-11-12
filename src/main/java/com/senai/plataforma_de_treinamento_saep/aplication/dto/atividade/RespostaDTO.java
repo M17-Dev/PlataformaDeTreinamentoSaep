@@ -22,6 +22,7 @@ public record RespostaDTO(
         Resposta resposta = new Resposta();
         resposta.setTexto(this.texto);
         resposta.setCertoOuErrado(this.certaOuErrada);
+        resposta.setStatus(true);
         return resposta;
     }
 }

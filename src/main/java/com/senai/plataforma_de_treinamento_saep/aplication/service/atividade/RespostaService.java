@@ -32,7 +32,6 @@ public class RespostaService {
 
         Questao questao = buscarEValidarQuestaoParaAssociacao(respostaDTO.idQuestao());
         resposta.setQuestao(questao);
-        respostaRepo.save(resposta);
 
         return RespostaDTO.toDTO(respostaRepo.save(resposta));
     }
@@ -84,6 +83,13 @@ public class RespostaService {
             Questao novaQuestao = buscarEValidarQuestaoParaAssociacao(idNovaQuestao);
             resposta.setQuestao(novaQuestao);
         }
+        Questao questao = resposta.getQuestao();
+        questao.getRespostas().forEach(respostaQuestao -> {
+            if(Objects.equals(respostaQuestao.getId(), resposta.getId())) {
+                respostaQuestao = resposta;
+            }
+        } );
+        questaoRepo.save(questao);
     }
 
     private Questao buscarEValidarQuestaoParaAssociacao(Long idQuestao) {
