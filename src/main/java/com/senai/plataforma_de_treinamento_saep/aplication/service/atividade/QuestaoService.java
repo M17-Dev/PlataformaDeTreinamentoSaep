@@ -31,9 +31,6 @@ public class QuestaoService {
         if (dto.professorId() == null) {
             throw new RuntimeException("Um professor é obrigatório para cadastrar uma questão.");
         }
-        if (dto.respostasId() != null && dto.respostasId().size() > 4) {
-            throw new RuntimeException("Uma questão não pode ter mais de 5 respostasId.");
-        }
 
         Questao questao = dto.fromDTO();
         associarRelacionamentos(questao, dto);
@@ -131,15 +128,6 @@ public class QuestaoService {
             UnidadeCurricular uc = ucRepo.findById(dto.unidadeCurricularId())
                     .orElseThrow(() -> new RuntimeException("Unidade Curricular com ID " + dto.unidadeCurricularId() + " não encontrada."));
             questao.setUnidadeCurricular(uc);
-        }
-
-        if (dto.respostasId() != null) {
-            List<Resposta> novasRespostas = dto.respostasId().stream()
-                    .map(idResposta -> respostaRepo.findById(idResposta)
-                            .orElseThrow(() -> new EntidadeNaoEncontradaException("A resposta de ID: " + idResposta + " não foi encontrada.")))
-                    .toList();
-            questao.getRespostas().clear();
-            questao.getRespostas().addAll(novasRespostas);
         }
     }
 }
