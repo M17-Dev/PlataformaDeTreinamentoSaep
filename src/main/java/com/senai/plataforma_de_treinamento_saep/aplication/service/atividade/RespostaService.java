@@ -29,7 +29,7 @@ public class RespostaService {
         }
 
         Resposta resposta = respostaDTO.fromDTO();
-
+        resposta.setStatus(true);
         Questao questao = buscarEValidarQuestaoParaAssociacao(respostaDTO.idQuestao());
         resposta.setQuestao(questao);
 
@@ -41,10 +41,11 @@ public class RespostaService {
         // Queremos ordenar pelo campo "id" da entidade "questao" em ordem Ascendente (ASC).
         Sort sort = Sort.by(Sort.Direction.ASC, "questao.id");
 
-        // 2. Busque todos os registros usando a ordenação
-        List<Resposta> respostasOrdenadas = respostaRepo.findAll(sort);
+        // 2. Busque APENAS os registros ativos, já ordenados, direto do banco.
+        List<Resposta> respostasAtivas = respostaRepo.findByStatusTrue(sort);
 
-        return respostasOrdenadas.stream()
+        // 3. Mapeie para DTO
+        return respostasAtivas.stream()
                 .map(RespostaDTO::toDTO)
                 .collect(Collectors.toList());
     }
@@ -86,7 +87,10 @@ public class RespostaService {
         Questao questao = resposta.getQuestao();
         questao.getRespostas().forEach(respostaQuestao -> {
             if(Objects.equals(respostaQuestao.getId(), resposta.getId())) {
-                respostaQuestao = resposta;
+                respostaQuestao.setQuestao(resposta.getQuestao());
+                respostaQuestao.setTexto(resposta.getTexto());
+                respostaQuestao.setStatus(resposta.isStatus());
+                respostaQuestao.setCertoOuErrado(resposta.isCertoOuErrado());
             }
         } );
         questaoRepo.save(questao);
