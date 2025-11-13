@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface RespostaRepository extends JpaRepository<Resposta, Long> {
     int countByQuestaoIdAndStatus(Long idQuestao, Boolean status);
+    int countByQuestaoIdAndCertoOuErradoAndStatus(Long idQuestao, boolean certoOuErrado, boolean status);
     List<Resposta> findByStatusTrue(Sort sort);
 }
