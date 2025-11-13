@@ -2,6 +2,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.RespostaDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
@@ -25,7 +26,7 @@ public class QuestaoService {
     private final UnidadeCurricularRepository ucRepo;
     private final ProfessorRepository profRepo;
 
-    public Questao cadastrarQuestao(QuestaoDTO dto){
+    public Questao cadastrarQuestao(QuestaoDTO dto) {
         if (dto.professorId() == null) {
             throw new RuntimeException("Um professor é obrigatório para cadastrar uma questão.");
         }
@@ -40,20 +41,43 @@ public class QuestaoService {
     }
 
     public List<QuestaoDTO> listarQuestoesAtivas() {
-        return questaoRepo.findByStatusTrue()
+//        return questaoRepo.findByStatusTrue()
+//                .stream()
+//                .map(
+//                        QuestaoDTO::toDTO
+//                )
+//                .collect(
+//                        Collectors.toList()
+//                );
+        return questaoRepo.findByStatusTrue() // 1. Busca todas as Questões com status = true
                 .stream()
-                .map(
-                        QuestaoDTO::toDTO
-                )
-                .collect(
-                        Collectors.toList()
-                );
+                .map(questao -> { // 2. Para cada Questão (entidade) encontrada...
+
+                    // 3. Filtra a lista de Respostas (entidades)
+                    //    Pega só as respostas com status = true
+                    List<Resposta> respostasAtivas = questao.getRespostas()
+                            .stream()
+                            .filter(Resposta::isStatus) // <-- O FILTRO VAI AQUI// <-- Converte SÓ as ativas para DTO
+                            .toList();
+                    questao.setRespostas(respostasAtivas);
+
+                    return QuestaoDTO.toDTO(questao);
+                })
+                .toList();
     }
 
     public Optional<QuestaoDTO> buscarPorId(Long id) {
         return questaoRepo.findById(id)
                 .map(
-                        QuestaoDTO::toDTO
+                        questao -> {
+                            List<Resposta> respostasAtivas = questao.getRespostas()
+                                    .stream()
+                                    .filter(Resposta::isStatus)
+                                    .toList();
+                            questao.setRespostas(respostasAtivas);
+
+                            return QuestaoDTO.toDTO(questao);
+                        }
                 );
     }
 
@@ -63,7 +87,7 @@ public class QuestaoService {
                         questao -> {
                             atualizarInfos(questao, dto);
                             associarRelacionamentos(questao, dto);
-                            Questao questaoAtualizada =  questaoRepo.save(questao);
+                            Questao questaoAtualizada = questaoRepo.save(questao);
                             return QuestaoDTO.toDTO(questaoAtualizada);
                         }
                 )
@@ -78,6 +102,9 @@ public class QuestaoService {
                 .map(
                         questao -> {
                             questao.setStatus(false);
+                            questao.getRespostas().forEach(resposta -> {
+                                resposta.setStatus(false);
+                            });
                             questaoRepo.save(questao);
                             return true;
                         }
@@ -110,7 +137,7 @@ public class QuestaoService {
         if (dto.pergunta() != null && !dto.pergunta().isBlank()) {
             questao.setPergunta(dto.pergunta());
         }
-        if (dto.imagem() != null && !dto.imagem().isBlank()){
+        if (dto.imagem() != null && !dto.imagem().isBlank()) {
             questao.setImagem(dto.imagem());
         }
         if (dto.nivelDeDificuldade() != null) {
@@ -118,7 +145,7 @@ public class QuestaoService {
         }
     }
 
-    private void associarRelacionamentos(Questao questao, QuestaoDTO dto){
+    private void associarRelacionamentos(Questao questao, QuestaoDTO dto) {
         if (dto.professorId() != null) {
             Professor prof = profRepo.findById(dto.professorId())
                     .orElseThrow(() -> new RuntimeException("Professor não encontrado."));

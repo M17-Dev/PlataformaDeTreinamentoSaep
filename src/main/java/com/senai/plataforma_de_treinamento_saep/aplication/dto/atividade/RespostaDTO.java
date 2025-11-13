@@ -1,6 +1,5 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade;
 
-import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 
 public record RespostaDTO(
@@ -23,7 +22,6 @@ public record RespostaDTO(
         Resposta resposta = new Resposta();
         resposta.setTexto(this.texto);
         resposta.setCertoOuErrado(this.certaOuErrada);
-        resposta.setStatus(true);
         return resposta;
     }
 }

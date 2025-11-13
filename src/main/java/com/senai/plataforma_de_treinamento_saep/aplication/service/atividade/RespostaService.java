@@ -23,13 +23,22 @@ public class RespostaService {
     private final RespostaRepository respostaRepo;
     private final QuestaoRepository questaoRepo;
 
+    @Transactional
     public RespostaDTO cadastrarResposta(RespostaDTO respostaDTO) {
         if(respostaDTO.idQuestao() == null) {
             throw new RuntimeException("A 'idQuestao' é obrigatória para a criação de uma resposta.");
         }
+        int qtdRespostasCorretas = respostaRepo.countByQuestaoIdAndCertoOuErradoAndStatus(respostaDTO.idQuestao(), true, true);
+        boolean respostaIsCerta = respostaDTO.certaOuErrada();
+
+        if(qtdRespostasCorretas == 0 && !respostaIsCerta){
+            throw new RuntimeException("A primeira resposta de uma questão deve ser correta (Este erro pode aparecer caso você tenha deletado a resposta correta).");
+        } else if (qtdRespostasCorretas == 1 && respostaIsCerta) {
+            throw new RuntimeException("Cada questão só pode ter uma resposta correta.");
+        }
 
         Resposta resposta = respostaDTO.fromDTO();
-
+        resposta.setStatus(true);
         Questao questao = buscarEValidarQuestaoParaAssociacao(respostaDTO.idQuestao());
         resposta.setQuestao(questao);
 
@@ -37,14 +46,11 @@ public class RespostaService {
     }
 
     public List<RespostaDTO> listarRespostas() {
-        // 1. Crie o objeto de ordenação.
-        // Queremos ordenar pelo campo "id" da entidade "questao" em ordem Ascendente (ASC).
         Sort sort = Sort.by(Sort.Direction.ASC, "questao.id");
 
-        // 2. Busque todos os registros usando a ordenação
-        List<Resposta> respostasOrdenadas = respostaRepo.findAll(sort);
+        List<Resposta> respostasAtivas = respostaRepo.findByStatusTrue(sort);
 
-        return respostasOrdenadas.stream()
+        return respostasAtivas.stream()
                 .map(RespostaDTO::toDTO)
                 .collect(Collectors.toList());
     }
@@ -53,6 +59,7 @@ public class RespostaService {
         return respostaRepo.findById(id).filter(Resposta::isStatus).map(RespostaDTO::toDTO);
     }
 
+    @Transactional
     public Optional<RespostaDTO> atualizarResposta(RespostaDTO respostaDTO, Long id) {
         return respostaRepo.findById(id).map(resposta -> {
            atualizarInfosResposta(resposta, respostaDTO);
@@ -60,6 +67,7 @@ public class RespostaService {
         });
     }
 
+    @Transactional
     public boolean deletarResposta(Long id) {
         return respostaRepo.findById(id).map(resposta -> {
             resposta.setStatus(false);
@@ -72,9 +80,6 @@ public class RespostaService {
         if(!respostaAtualizada.texto().isBlank()) {
             resposta.setTexto(respostaAtualizada.texto());
         }
-        if(respostaAtualizada.certaOuErrada() != null) {
-            resposta.setCertoOuErrado(respostaAtualizada.certaOuErrada());
-        }
 
         Long idNovaQuestao = respostaAtualizada.idQuestao();
         Long idQuestaoAtual = resposta.getQuestao().getId();
@@ -83,18 +88,13 @@ public class RespostaService {
             Questao novaQuestao = buscarEValidarQuestaoParaAssociacao(idNovaQuestao);
             resposta.setQuestao(novaQuestao);
         }
-        Questao questao = resposta.getQuestao();
-        questao.getRespostas().forEach(respostaQuestao -> {
-            if(Objects.equals(respostaQuestao.getId(), resposta.getId())) {
-                respostaQuestao = resposta;
-            }
-        } );
-        questaoRepo.save(questao);
+
+        respostaRepo.save(resposta);
     }
 
     private Questao buscarEValidarQuestaoParaAssociacao(Long idQuestao) {
         // 1. Buscar a Questão
-        Questao questao = questaoRepo.findById(idQuestao)
+        Questao questao = questaoRepo.findById(idQuestao).filter(Questao::isStatus)
                 .orElseThrow(() -> new RuntimeException("Questão não encontrada. ID: " + idQuestao));
 
         // 2. Contar respostas ATIVAS (status == true)
