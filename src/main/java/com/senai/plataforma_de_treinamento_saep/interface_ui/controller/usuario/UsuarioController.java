@@ -21,7 +21,7 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDTO> cadastrarAluno(@RequestBody UsuarioDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(UsuarioDTO.toDTO(usuarioService.cadastrarUsuario(dto)));
+                .body(usuarioService.cadastrarUsuario(dto));
     }
 
     @GetMapping

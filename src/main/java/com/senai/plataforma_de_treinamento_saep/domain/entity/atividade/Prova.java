@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +26,7 @@ public class Prova {
     private Long idProva;
 
     private String descricao;
-    private Date dataProva;
+    private LocalDate dataProva;
 
     @ManyToMany
     @JoinTable(
@@ -39,6 +40,15 @@ public class Prova {
     @ManyToOne
     @JoinColumn(name = "unidade_curricular_id")
     private UnidadeCurricular unidadeCurricular;
+
+    @ManyToMany
+    @JoinTable(
+            name = "prova_questao",
+            joinColumns = @JoinColumn(name = "prova_id"),
+            inverseJoinColumns = @JoinColumn(name = "questao_id")
+    )
+    @Builder.Default
+    private List<Questao> questoes = new ArrayList<>();
 
     private int qtdQuestoes;
     private int qtdAcertos;

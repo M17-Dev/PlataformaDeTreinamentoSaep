@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 public class CursoService {
     private final CursoRepository cursoRepo;
 
-    public Curso cadastrarCurso(CursoDTO dto) {
-        return cursoRepo.save(dto.fromDTO());
+    public CursoDTO cadastrarCurso(CursoDTO dto) {
+        return CursoDTO.toDTO(cursoRepo.save(dto.fromDTO()));
     }
 
     public List<CursoDTO> listarCursosAtivos() {

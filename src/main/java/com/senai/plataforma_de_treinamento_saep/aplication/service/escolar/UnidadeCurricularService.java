@@ -24,7 +24,7 @@ public class UnidadeCurricularService {
     private final CursoRepository cursoRepository;
     private final QuestaoRepository questaoRepository;
 
-    public UnidadeCurricular cadastrarUnidadeCurricular(UnidadeCurricularDTO dto) {
+    public UnidadeCurricularDTO cadastrarUnidadeCurricular(UnidadeCurricularDTO dto) {
         if (dto.cursoId() == null){
             throw new RuntimeException("Uma UC deve pertencer a um Curso.");
         }
@@ -32,7 +32,7 @@ public class UnidadeCurricularService {
         UnidadeCurricular uc = dto.fromDTO();
         associarRelacionamentos(uc, dto);
 
-        return unidadeCurricularRepository.save(uc);
+        return UnidadeCurricularDTO.toDTO(unidadeCurricularRepository.save(uc));
     }
 
     public List<UnidadeCurricularDTO> listarUnidadesCurricularesAtivas() {

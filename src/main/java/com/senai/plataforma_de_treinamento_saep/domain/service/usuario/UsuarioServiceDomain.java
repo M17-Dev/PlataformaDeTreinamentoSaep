@@ -10,6 +10,12 @@ import org.springframework.stereotype.Service;
 public class UsuarioServiceDomain {
     private final UsuarioRepository usuarioRepository;
 
+    public void consultarDadosObrigatorios(String cpf, String senha){
+        if (cpf.isBlank()){
+            throw new RuntimeException("O CPF é um dado obrigatório para o cadastro de um usuário.");
+        }
+    }
+
     public void verificarCpfExistente(String cpf){
         if (usuarioRepository.existsByCpf(cpf)) {
             throw new ValidacaoDadosException("O CPF informado já está cadastrado no sistema.");

@@ -20,9 +20,9 @@ public class CoordenadorService {
     private final CoordenadorRepository coordRepo;
     private final UsuarioServiceDomain usuarioSD;
 
-    public Coordenador cadastrarCoordenador(CoordenadorDTO dto) {
+    public CoordenadorDTO cadastrarCoordenador(CoordenadorDTO dto) {
         usuarioSD.verificarCpfExistente(dto.cpf());
-        return coordRepo.save(dto.fromDto());
+        return CoordenadorDTO.toDTO(coordRepo.save(dto.fromDto()));
     }
 
     public List<CoordenadorDTO> listarCoordenadoresAtivos() {

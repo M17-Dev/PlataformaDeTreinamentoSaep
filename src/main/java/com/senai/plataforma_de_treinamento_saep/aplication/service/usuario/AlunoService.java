@@ -1,10 +1,11 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.CursoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +20,19 @@ import java.util.stream.Collectors;
 public class AlunoService {
 
     private final AlunoRepository alunoRepo;
+    private final CursoRepository cursoRepo;
     private final UsuarioServiceDomain usuarioSD;
 
-    public Aluno cadastrarAluno(AlunoDTO dto) {
+    public AlunoDTO cadastrarAluno(AlunoDTO dto) {
+        if (dto.cursoId() == null){
+            throw new RuntimeException("Um curso é obrigatório para criar um aluno.");
+        }
+        Aluno aluno = dto.fromDto();
+
         usuarioSD.verificarCpfExistente(dto.cpf());
-        return alunoRepo.save(dto.fromDto());
+        associarRelacionamentos(aluno, dto);
+
+        return AlunoDTO.toDTO(alunoRepo.save(aluno));
     }
 
     public List<AlunoDTO> listarAlunosAtivos() {
@@ -93,5 +102,11 @@ public class AlunoService {
         if (dto.senha() != null && !dto.senha().isBlank()) {
             aluno.setSenha(dto.senha());
         }
+    }
+
+    private void associarRelacionamentos(Aluno aluno, AlunoDTO dto){
+        Curso curso = cursoRepo.findById(dto.cursoId())
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Curso referente ao ID: " + dto.cursoId() + " não encontrado."));
+        aluno.setCurso(curso);
     }
 }

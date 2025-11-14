@@ -20,7 +20,7 @@ public class CoordenadorController {
     public ResponseEntity<CoordenadorDTO> cadastrarCoordenador(@RequestBody CoordenadorDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(CoordenadorDTO.toDTO(coordService.cadastrarCoordenador(dto)));
+                .body(coordService.cadastrarCoordenador(dto));
     }
 
     @GetMapping

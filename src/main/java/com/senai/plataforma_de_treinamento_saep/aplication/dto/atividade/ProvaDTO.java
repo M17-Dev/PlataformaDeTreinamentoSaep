@@ -3,6 +3,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -10,10 +11,11 @@ public class ProvaDTO {
 
     public record ProvaRequestDTO(
         String descricao,
-        Date dataProva,
-        List<Long> alunoIds,
+        LocalDate dataProva,
+        List<Long> alunosId,
         Long unidadeCurricularId,
-        NivelDeDificuldade nivelDeDificuldade
+        NivelDeDificuldade nivelDeDificuldade,
+        List<Long> questoesId
     ){
         public Prova toEntity(){
             return Prova.builder()
@@ -30,14 +32,14 @@ public class ProvaDTO {
     public record ProvaResponseDTO(
         Long idProva,
         String descricao,
-        Date dataProva,
+        LocalDate dataProva,
         List<Long> alunoIds,
         Long unidadeCurricularId,
         String nomeUnidadeCurricular,
         int qtdQuestoes,
         int qtdAcertos,
         NivelDeDificuldade nivelDeDificuldade,
-        boolean status,
-        List<QuestaoDTO> questoesDaProva
+        List<QuestaoDTO> questoesDaProva,
+        boolean status
     ){}
 }

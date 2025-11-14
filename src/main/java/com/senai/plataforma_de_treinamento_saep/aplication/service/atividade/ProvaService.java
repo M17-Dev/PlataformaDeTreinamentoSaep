@@ -15,6 +15,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoR
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,17 +58,17 @@ public class ProvaService {
 
     //Métodos referentes ao "Response" da prova
     private ProvaDTO.ProvaResponseDTO converterProvaParaResponseDto(Prova prova){
-        List<QuestaoDTO> questoesFiltradas = buscarQuestoesFiltradas(
-                prova.getUnidadeCurricular(),
-                prova.getNivelDeDificuldade()
-        );
-        int qtdQuestoes = questoesFiltradas.size();
-
         List<Long> alunoIds = (prova.getAlunos() != null) ?
                 prova.getAlunos().stream().map(Aluno::getId).toList() : Collections.emptyList();
 
         Long ucId = (prova.getUnidadeCurricular() != null) ? prova.getUnidadeCurricular().getId() : null;
         String ucNome = (prova.getUnidadeCurricular() != null) ? prova.getUnidadeCurricular().getNome() : null;
+
+        int qtdQuestoes = prova.getQtdQuestoes();
+
+        List<QuestaoDTO> questoesProva = prova.getQuestoes().stream()
+                .map(QuestaoDTO::toDTO)
+                .toList();
 
         return new ProvaDTO.ProvaResponseDTO(
                 prova.getIdProva(),
@@ -79,24 +80,9 @@ public class ProvaService {
                 qtdQuestoes,
                 prova.getQtdAcertos(),
                 prova.getNivelDeDificuldade(),
-                prova.isStatus(),
-                questoesFiltradas
+                questoesProva,
+                prova.isStatus()
         );
-    }
-
-    /*private Optional<ProvaDTO.ProvaResponseDTO> buscarEntidadeProvaPorId(Long id) {
-        Optional<Prova> prova = provaRepo.findById(id);
-        return prova.map(this::converterProvaParaResponseDto);
-    }*/
-
-    private List<QuestaoDTO> buscarQuestoesFiltradas(UnidadeCurricular uc, NivelDeDificuldade nivel) {
-        if (uc == null || nivel == null) {
-            return Collections.emptyList();
-        }
-        return questaoRepo.findByUnidadeCurricularAndNivelDeDificuldade(uc, nivel)
-                .stream()
-                .map(QuestaoDTO::toDTO)
-                .toList();
     }
 
     private void associarRelacionamentos(Prova prova, ProvaDTO.ProvaRequestDTO dto){
@@ -104,20 +90,30 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("UC não encontrada."));
         prova.setUnidadeCurricular(uc);
 
-        if (dto.alunoIds() != null && !dto.alunoIds().isEmpty()) {
-            List<Aluno> alunos = alunoRepo.findAllById(dto.alunoIds());
+        if (dto.alunosId() != null && !dto.alunosId().isEmpty()) {
+            List<Aluno> alunos = alunoRepo.findAllById(dto.alunosId());
 
-            if (alunos.size() != dto.alunoIds().size()) {
+            if (alunos.size() != dto.alunosId().size()) {
                 throw new EntidadeNaoEncontradaException("Um ou mais Alunos da lista não foram encontrados.");
             }
-
             prova.setAlunos(alunos);
         }
 
-        List<Questao> questoesFiltradas = questaoRepo.findByUnidadeCurricularAndNivelDeDificuldade(
-                uc,
-                dto.nivelDeDificuldade()
-        );
-        prova.setQtdQuestoes(questoesFiltradas.size());
+        NivelDeDificuldade nivelDaProva = prova.getNivelDeDificuldade();
+        List<Questao> questoesParaAdicionar = new ArrayList<>();
+
+        if (dto.questoesId() != null && !dto.questoesId().isEmpty()) {
+            List<Questao> questoesBuscadas = questaoRepo.findAllById(dto.questoesId());
+
+            for (Questao questao : questoesBuscadas) {
+                if (questao.getNivelDeDificuldade() != nivelDaProva) {
+                    throw new RuntimeException("A questão '" + questao.getTitulo() + "' (" + questao.getNivelDeDificuldade() +
+                            ") não pode ser adicionada a uma prova de nível " + nivelDaProva);
+                }
+                questoesParaAdicionar.add(questao);
+            }
+        }
+        prova.setQuestoes(questoesParaAdicionar);
+        prova.setQtdQuestoes(questoesParaAdicionar.size());
     }
 }

@@ -9,7 +9,7 @@ public record UnidadeCurricularDTO(
         Long id,
         String nome,
         Long cursoId,
-        String nomeCurso, //passa o nome do curso na unidade curricular pra poupar tempo
+        String nomeCurso,
         List<Long> questoesId,
         boolean status
 ) {

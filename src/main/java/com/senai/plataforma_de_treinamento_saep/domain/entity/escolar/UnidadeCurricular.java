@@ -1,5 +1,6 @@
 package com.senai.plataforma_de_treinamento_saep.domain.entity.escolar;
 
+import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,9 +24,12 @@ public class UnidadeCurricular {
     @OneToMany(mappedBy = "unidadeCurricular")
     private List<Questao> questoes = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY) // Opcional, mas bom para performance Miguel: nsei oque faz pergunta pra ia
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id")
     private Curso curso;
+
+    @OneToMany(mappedBy = "unidadeCurricular")
+    private List<Prova> provas;
 
     private boolean status;
 }

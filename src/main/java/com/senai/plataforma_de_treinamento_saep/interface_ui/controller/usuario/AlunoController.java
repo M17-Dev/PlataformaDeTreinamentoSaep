@@ -20,7 +20,7 @@ public class AlunoController {
     public ResponseEntity<AlunoDTO> cadastrarAluno(@RequestBody AlunoDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(AlunoDTO.toDTO(alunoService.cadastrarAluno(dto)));
+                .body(alunoService.cadastrarAluno(dto));
     }
 
     @GetMapping

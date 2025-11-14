@@ -22,9 +22,9 @@ public class UsuarioService {
     private final UsuarioServiceDomain usuarioSD;
 
     @Transactional
-    public Usuario cadastrarUsuario(UsuarioDTO dto) {
+    public UsuarioDTO cadastrarUsuario(UsuarioDTO dto) {
         usuarioSD.verificarCpfExistente(dto.cpf());
-        return usuarioRepo.save(dto.fromDTO());
+        return UsuarioDTO.toDTO(usuarioRepo.save(dto.fromDTO()));
     }
 
     public List<UsuarioDTO> listarUsuariosAtivos() {

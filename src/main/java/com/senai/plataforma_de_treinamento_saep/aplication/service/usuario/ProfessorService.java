@@ -20,9 +20,9 @@ public class ProfessorService {
     private final ProfessorRepository profRepo;
     private final UsuarioServiceDomain usuarioSD;
 
-    public Professor cadastrarProfessor(ProfessorDTO dto) {
+    public ProfessorDTO cadastrarProfessor(ProfessorDTO dto) {
         usuarioSD.verificarCpfExistente(dto.cpf());
-        return profRepo.save(dto.fromDto());
+        return ProfessorDTO.toDTO(profRepo.save(dto.fromDto()));
     }
 
     public List<ProfessorDTO> listarProfessoresAtivos() {

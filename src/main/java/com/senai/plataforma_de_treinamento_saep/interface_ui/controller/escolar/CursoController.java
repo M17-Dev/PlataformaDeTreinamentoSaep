@@ -18,7 +18,7 @@ public class CursoController {
     public ResponseEntity<CursoDTO> cadastrarCurso(@RequestBody CursoDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(CursoDTO.toDTO(cursoService.cadastrarCurso(dto)));
+                .body(cursoService.cadastrarCurso(dto));
     }
 
     @GetMapping

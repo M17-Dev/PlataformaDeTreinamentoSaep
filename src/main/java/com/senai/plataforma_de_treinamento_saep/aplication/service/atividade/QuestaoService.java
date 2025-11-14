@@ -28,7 +28,7 @@ public class QuestaoService {
     private final UnidadeCurricularRepository ucRepo;
     private final ProfessorRepository profRepo;
 
-    public Questao cadastrarQuestao(QuestaoDTO dto) {
+    public QuestaoDTO cadastrarQuestao(QuestaoDTO dto) {
         if (dto.professorId() == null) {
             throw new RuntimeException("Um professor é obrigatório para cadastrar uma questão.");
         }
@@ -36,7 +36,7 @@ public class QuestaoService {
         Questao questao = dto.fromDTO();
         associarRelacionamentos(questao, dto);
 
-        return questaoRepo.save(questao);
+        return QuestaoDTO.toDTO(questaoRepo.save(questao));
     }
 
     public List<QuestaoDTO> listarQuestoesAtivas() {

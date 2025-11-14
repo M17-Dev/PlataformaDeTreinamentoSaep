@@ -18,7 +18,7 @@ public class QuestaoController {
     public ResponseEntity<QuestaoDTO> cadastrarQuestao(@RequestBody QuestaoDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(QuestaoDTO.toDTO(questaoService.cadastrarQuestao(dto)));
+                .body(questaoService.cadastrarQuestao(dto));
     }
 
     @GetMapping

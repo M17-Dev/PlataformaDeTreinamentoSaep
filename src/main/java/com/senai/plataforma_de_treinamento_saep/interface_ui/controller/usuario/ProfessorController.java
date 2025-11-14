@@ -20,7 +20,7 @@ public class ProfessorController {
     public ResponseEntity<ProfessorDTO> cadastrarProfessor(@RequestBody ProfessorDTO dto) {
         return ResponseEntity
                 .status(201)
-                .body(ProfessorDTO.toDTO(profService.cadastrarProfessor(dto)));
+                .body(profService.cadastrarProfessor(dto));
     }
 
     @GetMapping
