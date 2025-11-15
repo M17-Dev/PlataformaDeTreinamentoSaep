@@ -21,6 +21,7 @@ public class CoordenadorService {
     private final UsuarioServiceDomain usuarioSD;
 
     public CoordenadorDTO cadastrarCoordenador(CoordenadorDTO dto) {
+        usuarioSD.consultarDadosObrigatorios(dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
         return CoordenadorDTO.toDTO(coordRepo.save(dto.fromDto()));
     }

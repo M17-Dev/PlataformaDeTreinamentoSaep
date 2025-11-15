@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/prova")
+@RequestMapping("/api/prova")
 @RequiredArgsConstructor
 public class ProvaController {
     private final ProvaService provaService;

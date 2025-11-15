@@ -2,14 +2,12 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.RespostaDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
-import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.RespostaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,21 +15,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class QuestaoService {
 
     private final QuestaoRepository questaoRepo;
-    private final RespostaRepository respostaRepo;
     private final UnidadeCurricularRepository ucRepo;
     private final ProfessorRepository profRepo;
 
     public QuestaoDTO cadastrarQuestao(QuestaoDTO dto) {
-        if (dto.professorId() == null) {
-            throw new RuntimeException("Um professor é obrigatório para cadastrar uma questão.");
-        }
+        verificarDadosObrigatorios(dto);
 
         Questao questao = dto.fromDTO();
         associarRelacionamentos(questao, dto);
@@ -155,6 +149,21 @@ public class QuestaoService {
             UnidadeCurricular uc = ucRepo.findById(dto.unidadeCurricularId())
                     .orElseThrow(() -> new RuntimeException("Unidade Curricular com ID " + dto.unidadeCurricularId() + " não encontrada."));
             questao.setUnidadeCurricular(uc);
+        }
+    }
+
+    private void verificarDadosObrigatorios(QuestaoDTO dto){
+        if (dto.professorId() == null) {
+            throw new RuntimeException("Um professor é obrigatório para cadastrar uma questão.");
+        }
+        if (dto.unidadeCurricularId() == null){
+            throw new RuntimeException("Uma unidade curricular é obrigatória para cadastrar uma questão");
+        }
+        if (!ucRepo.existsById(dto.unidadeCurricularId())){
+            throw new EntidadeNaoEncontradaException("Unidade curricular de ID:" + dto.unidadeCurricularId() + " não encontrada.");
+        }
+        if (dto.nivelDeDificuldade() == null){
+            throw new RuntimeException("O nível de dificuldade é obrigatório para cadastrar uma questãao");
         }
     }
 }

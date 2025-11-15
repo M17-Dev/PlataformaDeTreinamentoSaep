@@ -24,6 +24,7 @@ public class AlunoService {
     private final UsuarioServiceDomain usuarioSD;
 
     public AlunoDTO cadastrarAluno(AlunoDTO dto) {
+        usuarioSD.consultarDadosObrigatorios(dto.cpf());
         if (dto.cursoId() == null){
             throw new RuntimeException("Um curso é obrigatório para criar um aluno.");
         }

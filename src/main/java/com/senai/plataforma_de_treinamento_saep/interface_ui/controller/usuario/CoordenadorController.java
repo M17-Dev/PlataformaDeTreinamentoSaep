@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/coordenador")
+@RequestMapping("/api/coordenador")
 @RequiredArgsConstructor
 public class CoordenadorController {
     private final CoordenadorService coordService;
