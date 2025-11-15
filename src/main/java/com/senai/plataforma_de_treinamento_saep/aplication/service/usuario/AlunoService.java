@@ -24,13 +24,15 @@ public class AlunoService {
     private final UsuarioServiceDomain usuarioSD;
 
     public AlunoDTO cadastrarAluno(AlunoDTO dto) {
-        usuarioSD.consultarDadosObrigatorios(dto.cpf());
+        usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         if (dto.cursoId() == null){
             throw new RuntimeException("Um curso é obrigatório para criar um aluno.");
         }
         Aluno aluno = dto.fromDto();
 
         usuarioSD.verificarCpfExistente(dto.cpf());
+        aluno.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
+
         associarRelacionamentos(aluno, dto);
 
         return AlunoDTO.toDTO(alunoRepo.save(aluno));

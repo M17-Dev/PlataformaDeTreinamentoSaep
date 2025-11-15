@@ -23,9 +23,13 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioDTO cadastrarUsuario(UsuarioDTO dto) {
-        usuarioSD.consultarDadosObrigatorios(dto.cpf());
+        usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
-        return UsuarioDTO.toDTO(usuarioRepo.save(dto.fromDTO()));
+
+        Usuario usuario = dto.fromDTO();
+        usuario.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
+
+        return UsuarioDTO.toDTO(usuarioRepo.save(usuario));
     }
 
     public List<UsuarioDTO> listarUsuariosAtivos() {
