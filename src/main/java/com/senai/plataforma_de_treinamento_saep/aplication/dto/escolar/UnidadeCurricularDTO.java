@@ -8,6 +8,7 @@ import java.util.List;
 public record UnidadeCurricularDTO(
         Long id,
         String nome,
+        String fraseUc,
         Long cursoId,
         String nomeCurso,
         List<Long> questoesId,
@@ -25,6 +26,7 @@ public record UnidadeCurricularDTO(
         return new UnidadeCurricularDTO(
                 unidadeCurricular.getId(),
                 unidadeCurricular.getNome(),
+                unidadeCurricular.getFraseDaUc(),
                 idDoCurso,
                 nomeDoCurso,
                 questoesId,

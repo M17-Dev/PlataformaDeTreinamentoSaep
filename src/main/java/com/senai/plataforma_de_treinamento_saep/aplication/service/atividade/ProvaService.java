@@ -56,7 +56,16 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não foi encontrada.")));
     }
 
-    //Métodos referentes ao "Response" da prova
+    public ProvaDTO.ProvaResponseDTO atualizarProva(Long id, ProvaDTO.ProvaRequestDTO dto){
+        return provaRepo.findById(id)
+                .map(
+                        prova -> {
+
+                        }
+                )
+    }
+
+    //Método referente ao "Response" da prova
     private ProvaDTO.ProvaResponseDTO converterProvaParaResponseDto(Prova prova){
         List<Long> alunoIds = (prova.getAlunos() != null) ?
                 prova.getAlunos().stream().map(Aluno::getId).toList() : Collections.emptyList();
@@ -73,7 +82,8 @@ public class ProvaService {
         return new ProvaDTO.ProvaResponseDTO(
                 prova.getIdProva(),
                 prova.getDescricao(),
-                prova.getDataProva(),
+                prova.getDataCriacao(),
+                prova.getDataUltimaAtualizacao(),
                 alunoIds,
                 ucId,
                 ucNome,
@@ -90,14 +100,13 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("UC não encontrada."));
         prova.setUnidadeCurricular(uc);
 
-        if (dto.alunosId() != null && !dto.alunosId().isEmpty()) {
-            List<Aluno> alunos = alunoRepo.findAllById(dto.alunosId());
-
-            if (alunos.size() != dto.alunosId().size()) {
-                throw new EntidadeNaoEncontradaException("Um ou mais Alunos da lista não foram encontrados.");
-            }
-            prova.setAlunos(alunos);
+        if (uc.getCurso() == null) {
+            throw new RuntimeException("A UC selecionada não está vinculada a nenhum curso.");
         }
+        Long cursoId = uc.getCurso().getId();
+        List<Aluno> alunosDoCurso = alunoRepo.findAllByCursoId(cursoId);
+
+        prova.setAlunos(alunosDoCurso);
 
         NivelDeDificuldade nivelDaProva = prova.getNivelDeDificuldade();
         List<Questao> questoesParaAdicionar = new ArrayList<>();
@@ -115,5 +124,11 @@ public class ProvaService {
         }
         prova.setQuestoes(questoesParaAdicionar);
         prova.setQtdQuestoes(questoesParaAdicionar.size());
+    }
+
+    private void atualizarInfos(Prova prova, ProvaDTO.ProvaRequestDTO dto){
+        if (prova.getDescricao() != null && !dto.descricao().isBlank()){
+            prova.setDescricao(dto.descricao());
+        }
     }
 }

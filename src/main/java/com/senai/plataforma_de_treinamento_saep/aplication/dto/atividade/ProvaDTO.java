@@ -4,14 +4,12 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 public class ProvaDTO {
 
     public record ProvaRequestDTO(
         String descricao,
-        LocalDate dataProva,
         List<Long> alunosId,
         Long unidadeCurricularId,
         NivelDeDificuldade nivelDeDificuldade,
@@ -20,7 +18,6 @@ public class ProvaDTO {
         public Prova toEntity(){
             return Prova.builder()
                     .descricao(this.descricao)
-                    .dataProva(this.dataProva)
                     .qtdQuestoes(0)
                     .qtdAcertos(0)
                     .nivelDeDificuldade(this.nivelDeDificuldade)
@@ -32,7 +29,8 @@ public class ProvaDTO {
     public record ProvaResponseDTO(
         Long idProva,
         String descricao,
-        LocalDate dataProva,
+        LocalDate dataCriacao,
+        LocalDate dataUltimaAtualizacao,
         List<Long> alunoIds,
         Long unidadeCurricularId,
         String nomeUnidadeCurricular,

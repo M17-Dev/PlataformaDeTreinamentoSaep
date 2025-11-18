@@ -34,14 +34,6 @@ public class QuestaoService {
     }
 
     public List<QuestaoDTO> listarQuestoesAtivas() {
-//        return questaoRepo.findByStatusTrue()
-//                .stream()
-//                .map(
-//                        QuestaoDTO::toDTO
-//                )
-//                .collect(
-//                        Collectors.toList()
-//                );
         return questaoRepo.findByStatusTrue() // 1. Busca todas as Questões com status = true
                 .stream()
                 .map(questao -> { // 2. Para cada Questão (entidade) encontrada...

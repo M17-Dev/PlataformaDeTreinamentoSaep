@@ -1,6 +1,5 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.escolar;
 
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.escolar.UnidadeCurricularDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
@@ -28,8 +27,14 @@ public class UnidadeCurricularService {
         if (dto.cursoId() == null){
             throw new RuntimeException("Uma UC deve pertencer a um Curso.");
         }
-
         UnidadeCurricular uc = dto.fromDTO();
+
+        if (dto.fraseUc() != null && !dto.fraseUc().isBlank()){
+            uc.setFraseDaUc(dto.fraseUc());
+        }else {
+            uc.setFraseDaUc("");
+        }
+
         associarRelacionamentos(uc, dto);
 
         return UnidadeCurricularDTO.toDTO(unidadeCurricularRepository.save(uc));
@@ -99,6 +104,9 @@ public class UnidadeCurricularService {
     private void atualizarInfos(UnidadeCurricular uc, UnidadeCurricularDTO dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             uc.setNome(dto.nome());
+        }
+        if (dto.fraseUc() != null && !dto.fraseUc().isBlank()){
+            uc.setFraseDaUc(dto.fraseUc());
         }
     }
 

@@ -2,9 +2,11 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.ProvaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.CursoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
@@ -21,6 +23,7 @@ public class AlunoService {
 
     private final AlunoRepository alunoRepo;
     private final CursoRepository cursoRepo;
+    private final ProvaRepository provaRepo;
     private final UsuarioServiceDomain usuarioSD;
 
     public AlunoDTO cadastrarAluno(AlunoDTO dto) {
@@ -35,7 +38,11 @@ public class AlunoService {
 
         associarRelacionamentos(aluno, dto);
 
-        return AlunoDTO.toDTO(alunoRepo.save(aluno));
+        alunoRepo.save(aluno);
+
+        associarProvasAutomaticamente(aluno);
+
+        return AlunoDTO.toDTO(aluno);
     }
 
     public List<AlunoDTO> listarAlunosAtivos() {
@@ -111,5 +118,18 @@ public class AlunoService {
         Curso curso = cursoRepo.findById(dto.cursoId())
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Curso referente ao ID: " + dto.cursoId() + " não encontrado."));
         aluno.setCurso(curso);
+    }
+
+    private void associarProvasAutomaticamente(Aluno aluno){
+        List<Prova> provasDoCurso = provaRepo.findByCursoId(aluno.getCurso().getId());
+
+        if (!provasDoCurso.isEmpty()) {
+            for (Prova prova : provasDoCurso) {
+                prova.getAlunos().add(aluno);
+                aluno.getProvas().add(prova);
+            }
+
+            provaRepo.saveAll(provasDoCurso);
+        }
     }
 }
