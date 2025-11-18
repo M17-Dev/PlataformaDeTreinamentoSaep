@@ -5,6 +5,7 @@ import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUp
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.service.reciclagem.ContaReciclagemService;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ public class ProfessorService {
     private final ProfessorRepository profRepo;
     private final UsuarioServiceDomain usuarioSD;
 
+    private final ContaReciclagemService reciclagemService;
+
     public ProfessorDTO cadastrarProfessor(ProfessorDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
@@ -27,7 +30,11 @@ public class ProfessorService {
         Professor professor = dto.fromDto();
         professor.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
 
-        return ProfessorDTO.toDTO(profRepo.save(professor));
+        Professor salvo = profRepo.save(professor);
+
+        reciclagemService.criarContaVinculada(salvo);
+
+        return ProfessorDTO.toDTO(salvo);
     }
 
     public List<ProfessorDTO> listarProfessoresAtivos() {
