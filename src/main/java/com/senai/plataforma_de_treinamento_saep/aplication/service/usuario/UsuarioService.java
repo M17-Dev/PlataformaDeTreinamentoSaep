@@ -2,7 +2,9 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem.UsuarioTampinhaService;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
+import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
@@ -21,6 +23,9 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepo;
     private final UsuarioServiceDomain usuarioSD;
 
+    // Injeção do novo serviço de tampinhas
+    private final UsuarioTampinhaService tampinhaService;
+
     @Transactional
     public UsuarioDTO cadastrarUsuario(UsuarioDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
@@ -29,7 +34,17 @@ public class UsuarioService {
         Usuario usuario = dto.fromDTO();
         usuario.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
 
-        return UsuarioDTO.toDTO(usuarioRepo.save(usuario));
+        UsuarioDTO usuarioCadastrado = UsuarioDTO.toDTO(usuarioRepo.save(usuario));
+
+        // Lógica de Criação Automática do UsuarioTampinha
+        // Se o novo usuário for um Professor, um UsuarioTampinha é criado automaticamente
+        if (dto.tipoDeUsuario() == TipoDeUsuario.PROFESSOR) {
+            tampinhaService.criarAutomatico(usuario.getNome());
+            // Você pode querer associar o ID do UsuarioTampinha ao Professor aqui,
+            // mas para manter a separação solicitada, estamos apenas criando o registro.
+        }
+
+        return usuarioCadastrado;
     }
 
     public List<UsuarioDTO> listarUsuariosAtivos() {
