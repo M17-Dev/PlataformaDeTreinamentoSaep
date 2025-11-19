@@ -1,4 +1,4 @@
-package com.senai.plataforma_de_treinamento_saep.domain.service.reciclagem;
+package com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.reciclagem.ContaReciclagem;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;

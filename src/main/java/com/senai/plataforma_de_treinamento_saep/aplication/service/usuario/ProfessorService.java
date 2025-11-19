@@ -5,7 +5,7 @@ import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUp
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
-import com.senai.plataforma_de_treinamento_saep.domain.service.reciclagem.ContaReciclagemService;
+import com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem.ContaReciclagemService;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
