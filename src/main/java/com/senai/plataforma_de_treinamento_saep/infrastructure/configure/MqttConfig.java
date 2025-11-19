@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
@@ -16,6 +17,7 @@ import org.springframework.messaging.MessageHandler;
 import java.util.UUID;
 
 @Configuration
+@EnableIntegration
 public class MqttConfig {
 
     // URL do Broker (igual ao do ESP32)
@@ -26,10 +28,16 @@ public class MqttConfig {
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
+
         options.setServerURIs(new String[]{BROKER_URL});
-        // Importante para não perder conexão fácil
-        options.setAutomaticReconnect(true);
-        options.setCleanSession(true);
+
+        // ATENÇÃO: Adicione (ou confirme) estas configurações de sessão:
+        options.setAutomaticReconnect(true); // Tenta reconectar
+        options.setCleanSession(true);       // Inicia uma nova sessão (limpa qualquer sessão pendente)
+
+        // Opcional: Aumente o Keep Alive para evitar desconexões prematuras
+        options.setKeepAliveInterval(60);
+
         factory.setConnectionOptions(options);
         return factory;
     }
@@ -40,14 +48,15 @@ public class MqttConfig {
         return new DirectChannel();
     }
 
+    // MqttConfig.java
     @Bean
     public MqttPahoMessageDrivenChannelAdapter inbound() {
-        // Escuta os tópicos que o ESP32 envia
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(CLIENT_ID + "_in", mqttClientFactory(),
                         "tampinhas/login",
                         "tampinhas/contagem");
 
+        // Mantenha ou aumente esse tempo para ser seguro
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setOutputChannel(mqttInputChannel());

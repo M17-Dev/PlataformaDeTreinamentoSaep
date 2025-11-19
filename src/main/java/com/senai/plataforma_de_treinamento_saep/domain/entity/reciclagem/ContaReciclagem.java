@@ -21,7 +21,7 @@ public class ContaReciclagem {
     private String pin;
 
     @Column(length = 6, nullable = false)
-    private String senhaMaquina;
+    private String senha;
 
     private Integer saldoTampinhas = 0;
 

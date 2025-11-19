@@ -21,12 +21,12 @@ public class ContaReciclagemService {
         conta.setUsuarioSistema(usuario);
         conta.setSaldoTampinhas(0);
         conta.setPin(gerarPinUnico());
-        conta.setSenhaMaquina(gerarSenhaNumerica());
+        conta.setSenha(gerarSenhaNumerica());
 
         repository.save(conta);
         // Aqui você poderia enviar um email para o usuário com o PIN/SENHA da máquina
         System.out.println("CONTA RECICLAGEM CRIADA PARA: " + usuario.getNome());
-        System.out.println("PIN: " + conta.getPin() + " | SENHA: " + conta.getSenhaMaquina());
+        System.out.println("PIN: " + conta.getPin() + " | SENHA: " + conta.getSenha());
     }
 
     // Métodos auxiliares de geração
@@ -45,7 +45,7 @@ public class ContaReciclagemService {
     // Métodos para uso do MQTT (Login e Contagem)
     public boolean validarLoginMaquina(String pin, String senha) {
         return repository.findByPin(pin)
-                .map(conta -> conta.getSenhaMaquina().equals(senha))
+                .map(conta -> conta.getSenha().equals(senha))
                 .orElse(false);
     }
 

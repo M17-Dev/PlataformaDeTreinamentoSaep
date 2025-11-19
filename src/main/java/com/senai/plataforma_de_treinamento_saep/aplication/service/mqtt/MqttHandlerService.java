@@ -43,9 +43,9 @@ public class MqttHandlerService {
 
         boolean sucesso = reciclagemService.validarLoginMaquina(dados.pin(), dados.senha());
 
-        // Responde para o tópico que o ESP32 está ouvindo
-        String resposta = sucesso ? "OK" : "ERRO";
-        mqttGateway.enviarResposta(resposta, "tampinhas/login/resposta");
+        // Resposta Simples (Se o ESP32 espera apenas a string OK/ERRO)
+        String respostaLogin = sucesso ? "OK" : "ERRO";
+        mqttGateway.enviarResposta(respostaLogin, "tampinhas/login/resposta");
     }
 
     private void processarContagem(String json) throws Exception {
