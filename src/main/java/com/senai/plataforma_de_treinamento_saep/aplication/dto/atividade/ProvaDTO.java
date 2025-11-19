@@ -40,4 +40,17 @@ public class ProvaDTO {
         List<QuestaoDTO> questoesDaProva,
         boolean status
     ){}
+
+    public record AtualizarProvaDTO(
+            String descricao
+    ){}
+
+    public record AdicionarQuestaoProvaDTO(
+            Long idQuestaoASerAdicionada
+    ){}
+
+    public record SubstituirQuestaoProvaDTO(
+        Long idQuestaoASerAtualizada,
+        Long idNovaQuestao
+    ){}
 }

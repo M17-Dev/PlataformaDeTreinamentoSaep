@@ -56,13 +56,90 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não foi encontrada.")));
     }
 
-    public ProvaDTO.ProvaResponseDTO atualizarProva(Long id, ProvaDTO.ProvaRequestDTO dto){
+    public ProvaDTO.ProvaResponseDTO atualizarProva(Long id, ProvaDTO.AtualizarProvaDTO dto){
         return provaRepo.findById(id)
                 .map(
                         prova -> {
-
+                            atualizarInfos(prova, dto);
+                            Prova provaAtualizada = provaRepo.save(prova);
+                            return converterProvaParaResponseDto(provaAtualizada);
                         }
                 )
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não encontrada."));
+    }
+
+    public boolean desativarProva(Long id){
+        return provaRepo.findById(id)
+                .filter(
+                        Prova::isStatus
+                )
+                .map(
+                        prova -> {
+                            prova.setStatus(false);
+                            provaRepo.save(prova);
+                            return true;
+                        }
+                )
+                .orElse(false);
+    }
+
+    public boolean reativarProva(Long id){
+        return provaRepo.findById(id)
+                .filter(
+                        prova -> !prova.isStatus()
+                )
+                .map(
+                        prova -> {
+                            prova.setStatus(true);
+                            provaRepo.save(prova);
+                            return true;
+                        }
+                )
+                .orElse(false);
+    }
+
+    public ProvaDTO.ProvaResponseDTO adicionarQuestaoNaProva(Long idProva, Long idQuestaoASerAdicionada){
+        Prova prova = provaRepo.findById(idProva)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + idProva + " não foi encontrada."));
+
+        Questao questao = questaoRepo.findById(idQuestaoASerAdicionada)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A questão de ID: " + idQuestaoASerAdicionada + " não foi encontrada"));
+
+        validarDadosDaQuestao(prova, questao);
+        int questoesAtivasNaProva = provaRepo.countActiveQuestionsByProvaId(idProva);
+
+        if (questoesAtivasNaProva >= 5){
+            throw new RuntimeException("A prova de ID: " + idProva + " já atingiu o limite de 5 questões ATIVAS.");
+        }
+
+        prova.getQuestoes().add(questao);
+        prova.setQtdQuestoes(prova.getQuestoes().size());
+
+        Prova provaAtualizada = provaRepo.save(prova);
+
+        return converterProvaParaResponseDto(provaAtualizada);
+    }
+
+    public ProvaDTO.ProvaResponseDTO substituirQuestao(Long idProva,Long idQuestaoASerAtualizada, Long idNovaQuestao){
+        Prova prova = provaRepo.findById(idProva)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + idProva + " não foi encontrada"));
+
+        Questao novaQuestao = questaoRepo.findById(idNovaQuestao)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A questao de ID: " + idNovaQuestao + " não encontrada."));
+
+        validarDadosDaQuestao(prova, novaQuestao);
+
+        Questao questaoAntiga = prova.getQuestoes().stream()
+                .filter(q -> q.getId().equals(idQuestaoASerAtualizada))
+                .findFirst()
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A questão de ID: " + idQuestaoASerAtualizada + " não foi encontrada"));
+
+        prova.getQuestoes().remove(questaoAntiga);
+        prova.getQuestoes().add(novaQuestao);
+
+        Prova provaAtualizada = provaRepo.save(prova);
+
+        return converterProvaParaResponseDto(provaAtualizada);
     }
 
     //Método referente ao "Response" da prova
@@ -126,9 +203,18 @@ public class ProvaService {
         prova.setQtdQuestoes(questoesParaAdicionar.size());
     }
 
-    private void atualizarInfos(Prova prova, ProvaDTO.ProvaRequestDTO dto){
+    private void atualizarInfos(Prova prova, ProvaDTO.AtualizarProvaDTO dto){
         if (prova.getDescricao() != null && !dto.descricao().isBlank()){
             prova.setDescricao(dto.descricao());
+        }
+    }
+
+    private void validarDadosDaQuestao(Prova prova, Questao questao){
+        if (!questao.getUnidadeCurricular().getId().equals(prova.getUnidadeCurricular().getId())){
+            throw new RuntimeException("A nova questão não pertence à mesma Unidade Curricular da prova.");
+        }
+        if (!questao.getNivelDeDificuldade().equals(prova.getNivelDeDificuldade())){
+            throw new RuntimeException("O nível de dificuldade da nova questão (" + questao.getNivelDeDificuldade() + ") não é o mesmo da prova (" + prova.getNivelDeDificuldade() + ").");
         }
     }
 }

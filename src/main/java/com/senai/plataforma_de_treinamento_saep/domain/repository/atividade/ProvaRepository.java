@@ -12,4 +12,7 @@ public interface ProvaRepository extends JpaRepository<Prova, Long> {
 
     @Query("SELECT p FROM Prova p WHERE p.unidadeCurricular.curso.id = :cursoId")
     List<Prova> findByCursoId(@Param("cursoId") Long cursoId);
+
+    @Query("SELECT COUNT(q) FROM Prova p JOIN p.questoes q WHERE p.idProva = :provaId AND q.status = true")
+    int countActiveQuestionsByProvaId(@Param("provaId") Long provaId);
 }
