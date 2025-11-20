@@ -33,6 +33,7 @@ public record UsuarioDTO(
 
     public Usuario fromDTO() {
         Usuario usuario = switch (tipoDeUsuario) {
+            case ADMIN -> throw new RuntimeException("O tipo de usuário só pode ser [ALUNO, PROFESSOR, COORDENADOR}");
             case ALUNO -> new Aluno();
             case PROFESSOR -> new Professor();
             case COORDENADOR -> new Coordenador();

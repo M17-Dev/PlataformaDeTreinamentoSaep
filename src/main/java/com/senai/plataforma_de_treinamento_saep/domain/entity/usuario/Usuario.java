@@ -3,6 +3,7 @@ package com.senai.plataforma_de_treinamento_saep.domain.entity.usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
