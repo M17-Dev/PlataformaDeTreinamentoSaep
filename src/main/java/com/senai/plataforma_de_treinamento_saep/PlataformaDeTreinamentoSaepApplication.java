@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PlataformaDeTreinamentoSaepApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PlataformaDeTreinamentoSaepApplication.class, args);
+        SpringApplication.run(PlataformaDeTreinamentoSaepApplication.class, args);
 	}
 
 }

@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/unidade-curricular")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class UnidadeCurricularController {
     private final UnidadeCurricularService service;
 

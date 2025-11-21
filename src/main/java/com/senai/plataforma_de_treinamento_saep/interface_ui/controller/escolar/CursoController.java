@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/curso")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class CursoController {
     private final CursoService cursoService;
 
