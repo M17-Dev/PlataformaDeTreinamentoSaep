@@ -46,9 +46,15 @@ public class UnidadeCurricularService {
                 .map(
                         UnidadeCurricularDTO::toDTO
                 )
-                .collect(
-                        Collectors.toList()
-                );
+                .toList();
+    }
+
+    public List<UnidadeCurricularDTO> listarUnidadesCurricularesDoCurso(Long idCurso){
+        return unidadeCurricularRepository.findByCursoIdAndStatusTrue(idCurso).stream()
+                .map(
+                        UnidadeCurricularDTO::toDTO
+                )
+                .toList();
     }
 
     public Optional<UnidadeCurricularDTO> buscarPorId(Long id) {

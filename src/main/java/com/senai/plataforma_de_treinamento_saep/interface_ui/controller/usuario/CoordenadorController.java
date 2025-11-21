@@ -6,6 +6,7 @@ import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.Coord
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/coordenador")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
 public class CoordenadorController {
     private final CoordenadorService coordService;
 
@@ -42,6 +44,7 @@ public class CoordenadorController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CoordenadorDTO> inativarCoordenador(@PathVariable Long id) {
         if (coordService.inativarCoordenador(id)) {
             return ResponseEntity.ok().build();
@@ -50,6 +53,7 @@ public class CoordenadorController {
     }
 
     @PutMapping("/reativar/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CoordenadorDTO> reativarCoordenador(@PathVariable Long id) {
         if (coordService.reativarCoordenador(id)) {
             return ResponseEntity.ok().build();

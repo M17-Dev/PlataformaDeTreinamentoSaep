@@ -38,26 +38,11 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/*",
+                                "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/uploads/**"
                         ).permitAll()
-
-                        .requestMatchers(HttpMethod.POST, "/api/usuario").hasAnyRole( "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/usuario/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/usuario/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/usuario/**").hasAnyRole("ADMIN")
-
-                        .requestMatchers(HttpMethod.GET, "/api/aluno/**").hasAnyRole("ADMIN", "COORDENADOR", "PROFESSOR")
-                        .requestMatchers(HttpMethod.POST, "/api/aluno").hasAnyRole("ADMIN", "COORDENADOR")
-
-
-                        .requestMatchers(HttpMethod.GET, "/api/auth/me").hasAnyRole("USUARIO","ADMIN")
-
-                        .requestMatchers(HttpMethod.GET, "/uploads/*").hasAnyRole("USUARIO","ADMIN")
-
-
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

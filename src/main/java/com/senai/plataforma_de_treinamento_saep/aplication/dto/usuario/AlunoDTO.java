@@ -10,6 +10,7 @@ public record AlunoDTO(
         Long id,
         String nome,
         String cpf,
+        String email,
         String senha,
         Long cursoId,
         List<Long> provas,
@@ -25,6 +26,7 @@ public record AlunoDTO(
                 aluno.getId(),
                 aluno.getNome(),
                 aluno.getCpf(),
+                aluno.getEmail(),
                 aluno.getSenha(),
                 curso,
                 listaIdProvas,
@@ -36,6 +38,7 @@ public record AlunoDTO(
         Aluno aluno = new Aluno();
         aluno.setNome(nome);
         aluno.setCpf(cpf);
+        aluno.setEmail(email);
         aluno.setSenha(senha);
         aluno.setTipoDeUsuario(TipoDeUsuario.ALUNO);
         aluno.setStatus(true);

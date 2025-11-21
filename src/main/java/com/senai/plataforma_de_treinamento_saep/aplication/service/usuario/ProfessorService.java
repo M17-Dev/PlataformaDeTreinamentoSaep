@@ -94,6 +94,9 @@ public class ProfessorService {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             prof.setNome(dto.nome());
         }
+        if (dto.email() != null && !dto.email().isBlank()) {
+            prof.setEmail(dto.email());
+        }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             prof.setSenha(dto.senha());
         }

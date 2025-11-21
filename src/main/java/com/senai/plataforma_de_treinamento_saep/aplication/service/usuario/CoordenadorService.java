@@ -94,6 +94,9 @@ public class CoordenadorService {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             coord.setNome(dto.nome());
         }
+        if (dto.email() != null && !dto.email().isBlank()) {
+            coord.setEmail(dto.email());
+        }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             coord.setSenha(dto.senha());
         }

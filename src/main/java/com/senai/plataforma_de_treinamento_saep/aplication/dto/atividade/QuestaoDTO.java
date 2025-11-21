@@ -40,6 +40,24 @@ public record QuestaoDTO(
         );
     }
 
+    public static QuestaoDTO toDTO(Questao questao, List<RespostaDTO> respostasPersonalizadas) {
+        Long profId = (questao.getProfessorId() != null) ? questao.getProfessorId().getId() : null;
+        Long ucId = (questao.getUnidadeCurricular() != null) ? questao.getUnidadeCurricular().getId() : null;
+
+        return new QuestaoDTO(
+                questao.getId(),
+                questao.getTitulo(),
+                questao.getIntroducao(),
+                questao.getPergunta(),
+                questao.getImagem(),
+                profId,
+                respostasPersonalizadas,
+                ucId,
+                questao.getNivelDeDificuldade(),
+                questao.isStatus()
+        );
+    }
+
     public Questao fromDTO() {
         Questao questao = new Questao();
         questao.setTitulo(this.titulo);

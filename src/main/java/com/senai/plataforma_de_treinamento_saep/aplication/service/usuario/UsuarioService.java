@@ -98,6 +98,9 @@ public class UsuarioService {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             usuario.setNome(dto.nome());
         }
+        if (dto.email() != null && !dto.email().isBlank()) {
+            usuario.setEmail(dto.email());
+        }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             usuario.setSenha(dto.senha());
         }

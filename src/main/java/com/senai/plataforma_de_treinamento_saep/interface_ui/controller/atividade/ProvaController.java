@@ -4,6 +4,7 @@ import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.ProvaDT
 import com.senai.plataforma_de_treinamento_saep.aplication.service.atividade.ProvaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/prova")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
 public class ProvaController {
     private final ProvaService provaService;
 
@@ -22,11 +24,20 @@ public class ProvaController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
     public ResponseEntity<List<ProvaDTO.ProvaResponseDTO>> listarProvasAtivas() {
         return ResponseEntity.ok(provaService.listarProvasAtivas());
     }
 
+
+    @GetMapping("/curso/{idCurso}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR', 'ALUNO')")
+    public ResponseEntity<List<ProvaDTO.ProvaResponseDTO>> listarProvasPeloIdDoCurso(@PathVariable Long idCurso){
+        return ResponseEntity.ok(provaService.listarProvasPeloIdDoCurso(idCurso));
+    }
+
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR', 'ALUNO')")
     public ResponseEntity<ProvaDTO.ProvaResponseDTO> buscarPorId(@PathVariable Long id) {
         return provaService.buscarProvaPorId(id)
                 .map(ResponseEntity::ok)

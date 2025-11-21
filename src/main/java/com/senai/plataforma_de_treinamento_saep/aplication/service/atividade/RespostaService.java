@@ -55,6 +55,14 @@ public class RespostaService {
                 .collect(Collectors.toList());
     }
 
+    public List<RespostaDTO> listarRespostasDeUmaQuestao(Long id){
+        return respostaRepo.findByQuestaoId(id).stream()
+                .map(
+                        RespostaDTO::toDTO
+                )
+                .toList();
+    }
+
     public Optional<RespostaDTO> buscarPorId(Long id) {
         return respostaRepo.findById(id).filter(Resposta::isStatus).map(RespostaDTO::toDTO);
     }

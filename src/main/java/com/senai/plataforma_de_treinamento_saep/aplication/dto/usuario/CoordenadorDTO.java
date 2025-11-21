@@ -7,6 +7,7 @@ public record CoordenadorDTO(
         Long id,
         String nome,
         String cpf,
+        String email,
         String senha,
         boolean status
 ) {
@@ -15,6 +16,7 @@ public record CoordenadorDTO(
                 coordenador.getId(),
                 coordenador.getNome(),
                 coordenador.getCpf(),
+                coordenador.getEmail(),
                 coordenador.getSenha(),
                 coordenador.isStatus()
         );
@@ -24,6 +26,7 @@ public record CoordenadorDTO(
         Coordenador coordenador = new Coordenador();
         coordenador.setNome(nome);
         coordenador.setCpf(cpf);
+        coordenador.setEmail(email);
         coordenador.setSenha(senha);
         coordenador.setTipoDeUsuario(TipoDeUsuario.COORDENADOR);
         coordenador.setStatus(true);

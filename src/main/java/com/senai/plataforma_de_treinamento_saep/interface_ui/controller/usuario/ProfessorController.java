@@ -6,6 +6,7 @@ import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.Profe
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/professor")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
 public class ProfessorController {
     private final ProfessorService profService;
 
@@ -24,11 +26,13 @@ public class ProfessorController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
     public ResponseEntity<List<ProfessorDTO>> listarProfessoresAtivos() {
         return ResponseEntity.ok(profService.listarProfessoresAtivos());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
     public ResponseEntity<ProfessorDTO> buscarPorId(@PathVariable Long id) {
         return profService.buscarPorId(id)
                 .map(ResponseEntity::ok)

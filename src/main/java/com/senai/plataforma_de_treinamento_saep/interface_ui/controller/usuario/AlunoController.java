@@ -14,10 +14,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/aluno")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
 public class AlunoController {
     private final AlunoService alunoService;
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
     @PostMapping
     public ResponseEntity<AlunoDTO> cadastrarAluno(@RequestBody AlunoDTO dto) {
         return ResponseEntity
@@ -39,13 +39,11 @@ public class AlunoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
     @PutMapping("/{id}")
     public ResponseEntity<AlunoDTO> atualizarAluno(@PathVariable Long id, @RequestBody UsuarioUpdateDTO dto) {
         return ResponseEntity.ok(alunoService.atualizarAluno(id, dto));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<AlunoDTO> inativarAluno(@PathVariable Long id) {
         if (alunoService.inativarAluno(id)) {
@@ -54,7 +52,6 @@ public class AlunoController {
         return ResponseEntity.notFound().build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
     @PutMapping("/reativar/{id}")
     public ResponseEntity<AlunoDTO> reativarAluno(@PathVariable Long id) {
         if (alunoService.reativarAluno(id)) {

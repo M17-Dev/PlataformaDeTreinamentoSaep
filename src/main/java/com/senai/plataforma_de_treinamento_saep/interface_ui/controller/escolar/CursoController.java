@@ -4,6 +4,7 @@ import com.senai.plataforma_de_treinamento_saep.aplication.dto.escolar.CursoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.escolar.CursoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/curso")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
 public class CursoController {
     private final CursoService cursoService;
 
@@ -22,11 +24,13 @@ public class CursoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CursoDTO>> listarCursoAtivas() {
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR', 'ALUNO')")
+    public ResponseEntity<List<CursoDTO>> listarCursoAtivos() {
         return ResponseEntity.ok(cursoService.listarCursosAtivos());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR', 'ALUNO')")
     public ResponseEntity<CursoDTO> buscarPorId(@PathVariable Long id) {
         return cursoService.buscarPorId(id)
                 .map(ResponseEntity::ok)

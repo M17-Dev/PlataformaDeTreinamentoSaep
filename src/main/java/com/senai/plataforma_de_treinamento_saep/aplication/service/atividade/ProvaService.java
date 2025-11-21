@@ -50,6 +50,14 @@ public class ProvaService {
                 );
     }
 
+    public List<ProvaDTO.ProvaResponseDTO> listarProvasPeloIdDoCurso(Long idCurso){
+        return provaRepo.findByCursoId(idCurso).stream()
+                .map(
+                        this::converterProvaParaResponseDto
+                )
+                .toList();
+    }
+
     public Optional<ProvaDTO.ProvaResponseDTO> buscarProvaPorId(Long id){
         return Optional.of(provaRepo.findById(id)
                 .map(this::converterProvaParaResponseDto)

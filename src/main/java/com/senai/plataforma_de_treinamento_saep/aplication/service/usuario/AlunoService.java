@@ -109,6 +109,9 @@ public class AlunoService {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             aluno.setNome(dto.nome());
         }
+        if (dto.email() != null && !dto.email().isBlank()) {
+            aluno.setEmail(dto.email());
+        }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             aluno.setSenha(dto.senha());
         }

@@ -2,6 +2,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.RespostaDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
@@ -34,20 +35,31 @@ public class QuestaoService {
     }
 
     public List<QuestaoDTO> listarQuestoesAtivas() {
-        return questaoRepo.findByStatusTrue() // 1. Busca todas as Questões com status = true
+        return questaoRepo.findByStatusTrue()
                 .stream()
-                .map(questao -> { // 2. Para cada Questão (entidade) encontrada...
-
-                    // 3. Filtra a lista de Respostas (entidades)
-                    //    Pega só as respostas com status = true
-                    List<Resposta> respostasAtivas = questao.getRespostas()
-                            .stream()
-                            .filter(Resposta::isStatus) // <-- O FILTRO VAI AQUI// <-- Converte SÓ as ativas para DTO
+                .map(questao -> {
+                    List<RespostaDTO> respostasFiltradasDTO = questao.getRespostas().stream()
+                            .filter(Resposta::isStatus)
+                            .map(RespostaDTO::toDTO)
                             .toList();
-                    questao.setRespostas(respostasAtivas);
 
-                    return QuestaoDTO.toDTO(questao);
+                    return QuestaoDTO.toDTO(questao, respostasFiltradasDTO);
                 })
+                .toList();
+    }
+
+    public List<QuestaoDTO> listarQuestoesPeloCurso(Long idCurso){
+        return questaoRepo.findByCursoId(idCurso).stream()
+                .map(
+                        questao -> {
+                            List<RespostaDTO> respostasFiltradasDTO = questao.getRespostas().stream()
+                                    .filter(Resposta::isStatus)
+                                    .map(RespostaDTO::toDTO)
+                                    .toList();
+
+                            return QuestaoDTO.toDTO(questao, respostasFiltradasDTO);
+                        }
+                )
                 .toList();
     }
 

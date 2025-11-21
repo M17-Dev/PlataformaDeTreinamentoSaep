@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface UnidadeCurricularRepository extends JpaRepository<UnidadeCurricular,Long> {
     List<UnidadeCurricular> findByStatusTrue();
+    List<UnidadeCurricular> findByCursoIdAndStatusTrue(Long idCurso);
 }
