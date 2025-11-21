@@ -32,7 +32,7 @@ public class AdminBootstrap implements CommandLineRunner {
                     }
                 },
                 () -> {
-                    Administrador admin = Administrador.administradorBuilder()
+                    Administrador admin = Administrador.builder()
                             .nome("Administrador Provisório")
                             .cpf(adminCpf)
                             .senha(passwordEncoder.encode(adminSenha))

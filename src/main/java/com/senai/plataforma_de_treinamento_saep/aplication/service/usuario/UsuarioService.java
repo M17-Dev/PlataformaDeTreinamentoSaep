@@ -8,6 +8,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.Usuari
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class UsuarioService {
     private final UsuarioServiceDomain usuarioSD;
 
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public UsuarioDTO cadastrarUsuario(UsuarioDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
@@ -32,6 +34,7 @@ public class UsuarioService {
         return UsuarioDTO.toDTO(usuarioRepo.save(usuario));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public List<UsuarioDTO> listarUsuariosAtivos() {
         return usuarioRepo.findByStatusTrue()
                 .stream()
@@ -43,6 +46,7 @@ public class UsuarioService {
                 );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public Optional<UsuarioDTO> buscarPorId(Long id) {
         return usuarioRepo.findById(id)
                 .map(
@@ -50,6 +54,7 @@ public class UsuarioService {
                 );
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public UsuarioDTO atualizarUsuario(Long id, UsuarioUpdateDTO usuarioDto) {
         return usuarioRepo.findById(id)
                 .map(
@@ -62,6 +67,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario dono do ID: " + id + " não encontrado"));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public boolean inativarUsuario(Long id) {
         return usuarioRepo.findById(id)
                 .filter(
@@ -77,6 +83,7 @@ public class UsuarioService {
                 .orElse(false);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public boolean reativarUsuario(Long id) {
         return usuarioRepo.findById(id)
                 .filter(

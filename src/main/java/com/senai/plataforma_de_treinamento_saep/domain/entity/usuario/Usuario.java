@@ -6,11 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor
 public abstract class Usuario {
     @Id
@@ -25,12 +26,4 @@ public abstract class Usuario {
     protected TipoDeUsuario tipoDeUsuario;
 
     protected boolean status;
-
-    public Usuario(Long id, String nome, String cpf, String senha, boolean status) {
-        this.id = id;
-        this.nome = nome;
-        this.cpf = cpf;
-        this.senha = senha;
-        this.status = status;
-    }
 }

@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,20 +35,19 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(
                         AbstractHttpConfigurer::disable)
-
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/login",
+                                "/api/auth/*",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/uploads/**"
                         ).permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios").hasAnyRole( "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/usuarios/*").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/usuarios/*").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/usuarios/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasAnyRole("ADMIN")
 
 
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").hasAnyRole("USUARIO","ADMIN")
