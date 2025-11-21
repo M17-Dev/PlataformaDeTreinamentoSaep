@@ -43,6 +43,7 @@ public class UsuarioServiceDomain {
         // 4. Junta tudo (Ex: "Jose" + "13579" -> "Jose13579")
         String senhaTextoPuro = nomeLimpo + numeros;
 
+        System.out.println(senhaTextoPuro);
         return passwordEncoder.encode(senhaTextoPuro);
     }
 

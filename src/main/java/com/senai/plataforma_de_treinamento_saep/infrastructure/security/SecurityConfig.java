@@ -44,10 +44,13 @@ public class SecurityConfig {
                                 "/uploads/**"
                         ).permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios").hasAnyRole( "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/usuarios/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/usuario").hasAnyRole( "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/usuario/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/usuario/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/usuario/**").hasAnyRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/aluno/**").hasAnyRole("ADMIN", "COORDENADOR", "PROFESSOR")
+                        .requestMatchers(HttpMethod.POST, "/api/aluno").hasAnyRole("ADMIN", "COORDENADOR")
 
 
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").hasAnyRole("USUARIO","ADMIN")
