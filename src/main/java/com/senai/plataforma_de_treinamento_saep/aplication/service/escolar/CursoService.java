@@ -6,6 +6,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEnco
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.CursoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +14,11 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CursoService {
     private final CursoRepository cursoRepo;
 
+    @Transactional
     public CursoDTO cadastrarCurso(CursoDTO dto) {
         return CursoDTO.toDTO(cursoRepo.save(dto.fromDTO()));
     }
@@ -38,6 +41,7 @@ public class CursoService {
                 );
     }
 
+    @Transactional
     public CursoDTO atualizarCurso(Long id, CursoDTO dto) {
         return cursoRepo.findById(id)
                 .map(
@@ -50,6 +54,7 @@ public class CursoService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Curso dono do ID: " + id + " não encontrado"));
     }
 
+    @Transactional
     public boolean inativarCurso(Long id) {
         return cursoRepo.findById(id)
                 .filter(
@@ -65,6 +70,7 @@ public class CursoService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarCurso(Long id) {
         return cursoRepo.findById(id)
                 .filter(

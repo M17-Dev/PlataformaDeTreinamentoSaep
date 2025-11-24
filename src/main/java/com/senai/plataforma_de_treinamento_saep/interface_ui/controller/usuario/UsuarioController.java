@@ -15,6 +15,7 @@ import java.util.List;
 @RequestMapping("/api/usuario")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@CrossOrigin("*")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

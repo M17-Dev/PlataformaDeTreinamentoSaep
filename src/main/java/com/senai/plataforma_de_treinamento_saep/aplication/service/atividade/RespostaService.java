@@ -3,6 +3,8 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.RespostaDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.RespostaRepository;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +86,19 @@ public class RespostaService {
         }).orElse(false);
     }
 
+    @Transactional
+    public boolean reativarResposta(Long id){
+        return respostaRepo.findById(id)
+                .map(
+                        resposta -> {
+                            resposta.setStatus(true);
+                            respostaRepo.save(resposta);
+                            return true;
+                        }
+                )
+                .orElse(false);
+    }
+
     private void atualizarInfosResposta(Resposta resposta, RespostaDTO respostaAtualizada) {
         if(!respostaAtualizada.texto().isBlank()) {
             resposta.setTexto(respostaAtualizada.texto());
@@ -103,14 +118,14 @@ public class RespostaService {
     private Questao buscarEValidarQuestaoParaAssociacao(Long idQuestao) {
         // 1. Buscar a Questão
         Questao questao = questaoRepo.findById(idQuestao).filter(Questao::isStatus)
-                .orElseThrow(() -> new RuntimeException("Questão não encontrada. ID: " + idQuestao));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Questão não encontrada. ID: " + idQuestao));
 
         // 2. Contar respostasId ATIVAS (status == true)
         int respostasAtivas = respostaRepo.countByQuestaoIdAndStatus(idQuestao, true);
 
         // 3. Aplicar a regra de negócio
         if (respostasAtivas >= 5) {
-            throw new RuntimeException("A Questão (ID: " + idQuestao + ") já possui o limite de 5 respostasId ativas.");
+            throw new RegraDeNegocioException("A Questão (ID: " + idQuestao + ") já possui o limite de 5 respostasId ativas.");
         }
 
         return questao;

@@ -8,6 +8,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.Profes
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,11 +16,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProfessorService {
 
     private final ProfessorRepository profRepo;
     private final UsuarioServiceDomain usuarioSD;
 
+    @Transactional
     public ProfessorDTO cadastrarProfessor(ProfessorDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
@@ -48,6 +51,7 @@ public class ProfessorService {
                 );
     }
 
+    @Transactional
     public ProfessorDTO atualizarProfessor(Long id, UsuarioUpdateDTO profDTO) {
         return profRepo.findById(id)
                 .map(
@@ -60,6 +64,7 @@ public class ProfessorService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Professor dono do ID: " + id + " não encontrado"));
     }
 
+    @Transactional
     public boolean inativarProfessor(Long id) {
         return profRepo.findById(id)
                 .filter(
@@ -75,6 +80,7 @@ public class ProfessorService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarProfessor(Long id) {
         return profRepo.findById(id)
                 .filter(

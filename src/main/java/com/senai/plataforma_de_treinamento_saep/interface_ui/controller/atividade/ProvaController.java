@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/api/prova")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
+@CrossOrigin("*")
 public class ProvaController {
     private final ProvaService provaService;
 

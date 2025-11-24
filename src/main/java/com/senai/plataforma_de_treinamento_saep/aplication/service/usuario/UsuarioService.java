@@ -6,10 +6,9 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepo;
@@ -52,6 +52,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuário de ID: " + id + " não foi encontrado.")));
     }
 
+    @Transactional
     public UsuarioDTO atualizarUsuario(Long id, UsuarioUpdateDTO usuarioDto) {
         return usuarioRepo.findById(id)
                 .map(
@@ -64,6 +65,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario dono do ID: " + id + " não encontrado"));
     }
 
+    @Transactional
     public boolean inativarUsuario(Long id) {
         return usuarioRepo.findById(id)
                 .filter(
@@ -79,6 +81,7 @@ public class UsuarioService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarUsuario(Long id) {
         return usuarioRepo.findById(id)
                 .filter(

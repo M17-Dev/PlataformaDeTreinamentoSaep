@@ -8,6 +8,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.Coorde
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,11 +16,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CoordenadorService {
 
     private final CoordenadorRepository coordRepo;
     private final UsuarioServiceDomain usuarioSD;
 
+    @Transactional
     public CoordenadorDTO cadastrarCoordenador(CoordenadorDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
@@ -48,6 +51,7 @@ public class CoordenadorService {
                 );
     }
 
+    @Transactional
     public CoordenadorDTO atualizarCoordenador(Long id, UsuarioUpdateDTO dto) {
         return coordRepo.findById(id)
                 .map(
@@ -60,6 +64,7 @@ public class CoordenadorService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Coordenador dono do ID: " + id + " não encontrado"));
     }
 
+    @Transactional
     public boolean inativarCoordenador(Long id) {
         return coordRepo.findById(id)
                 .filter(
@@ -75,6 +80,7 @@ public class CoordenadorService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarCoordenador(Long id) {
         return coordRepo.findById(id)
                 .filter(

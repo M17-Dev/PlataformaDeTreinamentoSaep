@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/api/questao")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
+@CrossOrigin("*")
 public class QuestaoController {
     private final QuestaoService questaoService;
 

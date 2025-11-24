@@ -1,6 +1,7 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.AlunoService;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
@@ -15,11 +16,12 @@ import java.util.List;
 @RequestMapping("/api/aluno")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
+@CrossOrigin("*")
 public class AlunoController {
     private final AlunoService alunoService;
 
     @PostMapping
-    public ResponseEntity<AlunoDTO> cadastrarAluno(@RequestBody AlunoDTO dto) {
+    public ResponseEntity<RetornoCriacaoUsuarioDTO<AlunoDTO>> cadastrarAluno(@RequestBody AlunoDTO dto) {
         return ResponseEntity
                 .status(201)
                 .body(alunoService.cadastrarAluno(dto));

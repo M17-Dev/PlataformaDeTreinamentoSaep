@@ -5,11 +5,13 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.CursoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +20,16 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UnidadeCurricularService {
     private final UnidadeCurricularRepository unidadeCurricularRepository;
     private final CursoRepository cursoRepository;
     private final QuestaoRepository questaoRepository;
 
+    @Transactional
     public UnidadeCurricularDTO cadastrarUnidadeCurricular(UnidadeCurricularDTO dto) {
         if (dto.cursoId() == null){
-            throw new RuntimeException("Uma UC deve pertencer a um Curso.");
+            throw new RegraDeNegocioException("Uma UC deve pertencer a um Curso.");
         }
         UnidadeCurricular uc = dto.fromDTO();
 
@@ -64,6 +68,7 @@ public class UnidadeCurricularService {
                 );
     }
 
+    @Transactional
     public UnidadeCurricularDTO atualizarUnidadeCurricular(Long id, UnidadeCurricularDTO dto) {
         return unidadeCurricularRepository.findById(id)
                 .map(
@@ -77,6 +82,7 @@ public class UnidadeCurricularService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("UC com o ID:" + id + " não encontrada."));
     }
 
+    @Transactional
     public boolean inativarUnidadeCurricular(Long id) {
         return unidadeCurricularRepository.findById(id)
                 .filter(
@@ -92,6 +98,7 @@ public class UnidadeCurricularService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarUnidadeCurricular(Long id) {
         return unidadeCurricularRepository.findById(id)
                 .filter(

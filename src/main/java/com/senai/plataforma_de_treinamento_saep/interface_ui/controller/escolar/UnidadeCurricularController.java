@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/api/unidade-curricular")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
+@CrossOrigin("*")
 public class UnidadeCurricularController {
     private final UnidadeCurricularService service;
 

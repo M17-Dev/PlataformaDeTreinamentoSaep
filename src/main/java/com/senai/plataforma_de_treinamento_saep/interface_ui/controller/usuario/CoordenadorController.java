@@ -15,6 +15,7 @@ import java.util.List;
 @RequestMapping("/api/coordenador")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
+@CrossOrigin("*")
 public class CoordenadorController {
     private final CoordenadorService coordService;
 

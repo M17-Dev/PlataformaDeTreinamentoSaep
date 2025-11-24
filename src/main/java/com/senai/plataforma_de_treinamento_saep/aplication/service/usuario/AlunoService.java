@@ -1,17 +1,21 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.ProvaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.CursoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,30 +23,35 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AlunoService {
 
     private final AlunoRepository alunoRepo;
     private final CursoRepository cursoRepo;
     private final ProvaRepository provaRepo;
     private final UsuarioServiceDomain usuarioSD;
+    private final PasswordEncoder passwordEncoder;
 
-    public AlunoDTO cadastrarAluno(AlunoDTO dto) {
+    @Transactional
+    public RetornoCriacaoUsuarioDTO<AlunoDTO> cadastrarAluno(AlunoDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         if (dto.cursoId() == null){
-            throw new RuntimeException("Um curso é obrigatório para criar um aluno.");
+            throw new RegraDeNegocioException("Um curso é obrigatório para criar um aluno.");
         }
         Aluno aluno = dto.fromDto();
 
         usuarioSD.verificarCpfExistente(dto.cpf());
-        aluno.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
 
+        String senhaPlana = usuarioSD.gerarSenhaPadrao(dto.nome());
+        aluno.setSenha(passwordEncoder.encode(senhaPlana));
         associarRelacionamentos(aluno, dto);
 
         alunoRepo.save(aluno);
-
         associarProvasAutomaticamente(aluno);
 
-        return AlunoDTO.toDTO(aluno);
+        AlunoDTO alunoSalvoDTO = AlunoDTO.toDTO(aluno);
+
+        return new RetornoCriacaoUsuarioDTO<>(alunoSalvoDTO, senhaPlana);
     }
 
     public List<AlunoDTO> listarAlunosAtivos() {
@@ -63,6 +72,7 @@ public class AlunoService {
                 );
     }
 
+    @Transactional
     public AlunoDTO atualizarAluno(Long id, UsuarioUpdateDTO alunoDTO) {
         return alunoRepo.findById(id)
                 .map(
@@ -75,6 +85,7 @@ public class AlunoService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Aluno dono do ID: " + id + " não encontrado"));
     }
 
+    @Transactional
     public boolean inativarAluno(Long id) {
         return alunoRepo.findById(id)
                 .filter(
@@ -90,6 +101,7 @@ public class AlunoService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarAluno(Long id) {
         return alunoRepo.findById(id)
                 .filter(

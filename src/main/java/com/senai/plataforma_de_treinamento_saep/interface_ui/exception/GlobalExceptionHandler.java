@@ -1,6 +1,7 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.exception;
 
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -117,6 +118,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(RegraDeNegocioException.class)
+    public ProblemDetail handleRegraDeNegocio(RegraDeNegocioException ex, HttpServletRequest request) {
+        return construtorDoProblema(
+                HttpStatus.BAD_REQUEST, // 400
+                "Violação de Regra de Negócio",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUncaught(Exception ex, HttpServletRequest request) {
         ex.printStackTrace();
@@ -135,7 +146,7 @@ public class GlobalExceptionHandler {
         ex.printStackTrace(); // Logar o erro
 
         return construtorDoProblema(
-                HttpStatus.INTERNAL_SERVER_ERROR, // Ou BAD_REQUEST se você usa RuntimeException para erros do cliente
+                HttpStatus.BAD_REQUEST, // Ou BAD_REQUEST se você usa RuntimeException para erros do cliente
                 "Erro de processamento",
                 "Ocorreu um erro no processamento da requisição.",
                 request.getRequestURI()

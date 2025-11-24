@@ -13,15 +13,10 @@ import java.util.List;
 @RequestMapping("/api/resposta")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
+@CrossOrigin("*")
 public class RespostaController {
 
     private final RespostaService respostaService;
-
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
-    public ResponseEntity<RespostaDTO> cadastrarResposta(@RequestBody RespostaDTO respostaDTO) {
-        return ResponseEntity.status(201).body(respostaService.cadastrarResposta(respostaDTO));
-    }
 
     @GetMapping
     public ResponseEntity<List<RespostaDTO>> listarRespostas() {
@@ -50,9 +45,15 @@ public class RespostaController {
         return respostaService.atualizarResposta(respostaDTO, id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/inativar/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
     public ResponseEntity<?> deletarResposta(@PathVariable Long id) {
         return respostaService.deletarResposta(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/reativar/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
+    public ResponseEntity<?> reativarResposta(@PathVariable Long id){
+        return respostaService.reativarResposta(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }

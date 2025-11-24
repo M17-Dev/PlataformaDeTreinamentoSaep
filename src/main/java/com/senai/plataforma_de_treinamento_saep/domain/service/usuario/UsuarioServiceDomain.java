@@ -13,7 +13,6 @@ import java.text.Normalizer;
 @RequiredArgsConstructor
 public class UsuarioServiceDomain {
     private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public void consultarDadosObrigatorios(String nome,String cpf){
         if (nome.isBlank()){
@@ -44,7 +43,7 @@ public class UsuarioServiceDomain {
         String senhaTextoPuro = nomeLimpo + numeros;
 
         System.out.println(senhaTextoPuro);
-        return passwordEncoder.encode(senhaTextoPuro);
+        return senhaTextoPuro;
     }
 
     private String removerAcentos(String texto) {

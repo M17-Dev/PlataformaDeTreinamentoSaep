@@ -8,12 +8,14 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCur
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.ProvaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProvaService {
     private final ProvaRepository provaRepo;
     private final AlunoRepository alunoRepo;
@@ -30,6 +33,7 @@ public class ProvaService {
     private final QuestaoRepository questaoRepo;
 
 
+    @Transactional
     public ProvaDTO.ProvaResponseDTO cadastrarProva(ProvaDTO.ProvaRequestDTO dto){
 
         Prova prova = dto.toEntity();
@@ -64,6 +68,7 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não foi encontrada.")));
     }
 
+    @Transactional
     public ProvaDTO.ProvaResponseDTO atualizarProva(Long id, ProvaDTO.AtualizarProvaDTO dto){
         return provaRepo.findById(id)
                 .map(
@@ -76,6 +81,7 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não encontrada."));
     }
 
+    @Transactional
     public boolean desativarProva(Long id){
         return provaRepo.findById(id)
                 .filter(
@@ -91,6 +97,7 @@ public class ProvaService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarProva(Long id){
         return provaRepo.findById(id)
                 .filter(
@@ -106,6 +113,7 @@ public class ProvaService {
                 .orElse(false);
     }
 
+    @Transactional
     public ProvaDTO.ProvaResponseDTO adicionarQuestaoNaProva(Long idProva, Long idQuestaoASerAdicionada){
         Prova prova = provaRepo.findById(idProva)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + idProva + " não foi encontrada."));
@@ -117,7 +125,7 @@ public class ProvaService {
         int questoesAtivasNaProva = provaRepo.countActiveQuestionsByProvaId(idProva);
 
         if (questoesAtivasNaProva >= 5){
-            throw new RuntimeException("A prova de ID: " + idProva + " já atingiu o limite de 5 questões ATIVAS.");
+            throw new RegraDeNegocioException("A prova de ID: " + idProva + " já atingiu o limite de 5 questões ATIVAS.");
         }
 
         prova.getQuestoes().add(questao);
@@ -128,6 +136,7 @@ public class ProvaService {
         return converterProvaParaResponseDto(provaAtualizada);
     }
 
+    @Transactional
     public ProvaDTO.ProvaResponseDTO substituirQuestao(Long idProva,Long idQuestaoASerAtualizada, Long idNovaQuestao){
         Prova prova = provaRepo.findById(idProva)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + idProva + " não foi encontrada"));
@@ -150,7 +159,6 @@ public class ProvaService {
         return converterProvaParaResponseDto(provaAtualizada);
     }
 
-    //Método referente ao "Response" da prova
     private ProvaDTO.ProvaResponseDTO converterProvaParaResponseDto(Prova prova){
         List<Long> alunoIds = (prova.getAlunos() != null) ?
                 prova.getAlunos().stream().map(Aluno::getId).toList() : Collections.emptyList();
@@ -185,9 +193,6 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("UC não encontrada."));
         prova.setUnidadeCurricular(uc);
 
-        if (uc.getCurso() == null) {
-            throw new RuntimeException("A UC selecionada não está vinculada a nenhum curso.");
-        }
         Long cursoId = uc.getCurso().getId();
         List<Aluno> alunosDoCurso = alunoRepo.findAllByCursoId(cursoId);
 
@@ -201,7 +206,7 @@ public class ProvaService {
 
             for (Questao questao : questoesBuscadas) {
                 if (questao.getNivelDeDificuldade() != nivelDaProva) {
-                    throw new RuntimeException("A questão '" + questao.getTitulo() + "' (" + questao.getNivelDeDificuldade() +
+                    throw new RegraDeNegocioException("A questão '" + questao.getTitulo() + "' (" + questao.getNivelDeDificuldade() +
                             ") não pode ser adicionada a uma prova de nível " + nivelDaProva);
                 }
                 questoesParaAdicionar.add(questao);
@@ -219,10 +224,10 @@ public class ProvaService {
 
     private void validarDadosDaQuestao(Prova prova, Questao questao){
         if (!questao.getUnidadeCurricular().getId().equals(prova.getUnidadeCurricular().getId())){
-            throw new RuntimeException("A nova questão não pertence à mesma Unidade Curricular da prova.");
+            throw new RegraDeNegocioException("A nova questão não pertence à mesma Unidade Curricular da prova.");
         }
         if (!questao.getNivelDeDificuldade().equals(prova.getNivelDeDificuldade())){
-            throw new RuntimeException("O nível de dificuldade da nova questão (" + questao.getNivelDeDificuldade() + ") não é o mesmo da prova (" + prova.getNivelDeDificuldade() + ").");
+            throw new RegraDeNegocioException("O nível de dificuldade da nova questão (" + questao.getNivelDeDificuldade() + ") não é o mesmo da prova (" + prova.getNivelDeDificuldade() + ").");
         }
     }
 }
