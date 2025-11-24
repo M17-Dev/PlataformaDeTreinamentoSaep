@@ -2,6 +2,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.reciclagem.UsuarioTampinhaDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.reciclagem.UsuarioTampinha;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.reciclagem.UsuarioTampinhaRepository;
 import jakarta.transaction.Transactional;
@@ -40,12 +41,9 @@ public class UsuarioTampinhaService {
         return UsuarioTampinhaDTO.toDTO(tampinhaRepo.save(usuarioTampinha));
     }
 
-    /**
-     * Criação de UsuarioTampinha automática (associada a um usuário principal).
-     * @param nomeBase Nome base para referenciar o usuário principal (opcional).
-     */
+
     @Transactional
-    public UsuarioTampinha criarAutomatico(String nomeBase) {
+    public UsuarioTampinha criarAutomatico(Usuario usuarioPrincipal) {
         UsuarioTampinha usuarioTampinha = UsuarioTampinha.builder()
                 .pin(gerarPinUnico())
                 .senha(gerarSenhaPadrao())

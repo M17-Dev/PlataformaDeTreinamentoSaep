@@ -2,6 +2,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem.UsuarioTampinhaService; // Importação Necessária
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
@@ -22,6 +23,7 @@ public class AlunoService {
     private final AlunoRepository alunoRepo;
     private final CursoRepository cursoRepo;
     private final UsuarioServiceDomain usuarioSD;
+    private final UsuarioTampinhaService tampinhaService; // INJEÇÃO DO SERVIÇO DE RECICLAGEM
 
     public AlunoDTO cadastrarAluno(AlunoDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
@@ -35,7 +37,12 @@ public class AlunoService {
 
         associarRelacionamentos(aluno, dto);
 
-        return AlunoDTO.toDTO(alunoRepo.save(aluno));
+        Aluno alunoSalvo = alunoRepo.save(aluno);
+
+        // CRIAÇÃO AUTOMÁTICA: Cria o perfil de tampinhas após salvar o aluno
+        tampinhaService.criarAutomatico(alunoSalvo);
+
+        return AlunoDTO.toDTO(alunoSalvo);
     }
 
     public List<AlunoDTO> listarAlunosAtivos() {

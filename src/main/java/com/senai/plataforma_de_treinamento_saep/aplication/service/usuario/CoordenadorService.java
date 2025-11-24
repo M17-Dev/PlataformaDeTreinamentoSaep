@@ -2,6 +2,7 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.CoordenadorDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem.UsuarioTampinhaService; // Importação Necessária
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.CoordenadorRepository;
@@ -19,6 +20,7 @@ public class CoordenadorService {
 
     private final CoordenadorRepository coordRepo;
     private final UsuarioServiceDomain usuarioSD;
+    private final UsuarioTampinhaService tampinhaService; // INJEÇÃO DO SERVIÇO DE RECICLAGEM
 
     public CoordenadorDTO cadastrarCoordenador(CoordenadorDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
@@ -27,7 +29,12 @@ public class CoordenadorService {
         Coordenador coordenador = dto.fromDto();
         coordenador.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
 
-        return CoordenadorDTO.toDTO(coordRepo.save(coordenador));
+        Coordenador coordenadorSalvo = coordRepo.save(coordenador);
+
+        // CRIAÇÃO AUTOMÁTICA: Cria o perfil de tampinhas após salvar o coordenador
+        tampinhaService.criarAutomatico(coordenadorSalvo);
+
+        return CoordenadorDTO.toDTO(coordenadorSalvo);
     }
 
     public List<CoordenadorDTO> listarCoordenadoresAtivos() {

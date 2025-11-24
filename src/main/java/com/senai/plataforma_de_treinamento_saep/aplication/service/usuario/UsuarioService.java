@@ -34,76 +34,56 @@ public class UsuarioService {
         Usuario usuario = dto.fromDTO();
         usuario.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
 
-        UsuarioDTO usuarioCadastrado = UsuarioDTO.toDTO(usuarioRepo.save(usuario));
+        Usuario usuarioSalvo = usuarioRepo.save(usuario);
 
-        // Lógica de Criação Automática do UsuarioTampinha
-        // Se o novo usuário for um Professor, um UsuarioTampinha é criado automaticamente
         if (dto.tipoDeUsuario() == TipoDeUsuario.PROFESSOR) {
-            tampinhaService.criarAutomatico(usuario.getNome());
-            // Você pode querer associar o ID do UsuarioTampinha ao Professor aqui,
-            // mas para manter a separação solicitada, estamos apenas criando o registro.
+            tampinhaService.criarAutomatico(usuarioSalvo);
         }
 
-        return usuarioCadastrado;
+        return UsuarioDTO.toDTO(usuarioSalvo);
     }
 
     public List<UsuarioDTO> listarUsuariosAtivos() {
         return usuarioRepo.findByStatusTrue()
                 .stream()
-                .map(
-                        UsuarioDTO::toDTO
-                )
-                .collect(
-                        Collectors.toList()
-                );
+                .map(UsuarioDTO::toDTO)
+                .collect(Collectors.toList());
     }
 
     public Optional<UsuarioDTO> buscarPorId(Long id) {
         return usuarioRepo.findById(id)
-                .map(
-                        UsuarioDTO::toDTO
-                );
+                .map(UsuarioDTO::toDTO);
     }
 
     public UsuarioDTO atualizarUsuario(Long id, UsuarioUpdateDTO usuarioDto) {
         return usuarioRepo.findById(id)
-                .map(
-                        usuario -> {
-                            atualizarInfos(usuario, usuarioDto);
-                            Usuario usuarioAtualizado =  usuarioRepo.save(usuario);
-                            return UsuarioDTO.toDTO(usuarioAtualizado);
-                        }
-                )
+                .map(usuario -> {
+                    atualizarInfos(usuario, usuarioDto);
+                    Usuario usuarioAtualizado =  usuarioRepo.save(usuario);
+                    return UsuarioDTO.toDTO(usuarioAtualizado);
+                })
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario dono do ID: " + id + " não encontrado"));
     }
 
     public boolean inativarUsuario(Long id) {
         return usuarioRepo.findById(id)
-                .filter(
-                        Usuario::isStatus
-                )
-                .map(
-                        usuario -> {
-                            usuario.setStatus(false);
-                            usuarioRepo.save(usuario);
-                            return true;
-                        }
-                )
+                .filter(Usuario::isStatus)
+                .map(usuario -> {
+                    usuario.setStatus(false);
+                    usuarioRepo.save(usuario);
+                    return true;
+                })
                 .orElse(false);
     }
 
     public boolean reativarUsuario(Long id) {
         return usuarioRepo.findById(id)
-                .filter(
-                        usuario -> !usuario.isStatus()
-                )
-                .map(
-                        usuario -> {
-                            usuario.setStatus(true);
-                            usuarioRepo.save(usuario);
-                            return true;
-                        }
-                )
+                .filter(usuario -> !usuario.isStatus())
+                .map(usuario -> {
+                    usuario.setStatus(true);
+                    usuarioRepo.save(usuario);
+                    return true;
+                })
                 .orElse(false);
     }
 
