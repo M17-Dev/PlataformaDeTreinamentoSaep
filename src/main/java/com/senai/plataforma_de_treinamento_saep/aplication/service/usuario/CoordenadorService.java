@@ -1,12 +1,14 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.CoordenadorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.CoordenadorRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +23,21 @@ public class CoordenadorService {
 
     private final CoordenadorRepository coordRepo;
     private final UsuarioServiceDomain usuarioSD;
+    private final PasswordEncoder encoder;
 
     @Transactional
-    public CoordenadorDTO cadastrarCoordenador(CoordenadorDTO dto) {
+    public RetornoCriacaoUsuarioDTO<CoordenadorDTO> cadastrarCoordenador(CoordenadorDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
 
         Coordenador coordenador = dto.fromDto();
-        coordenador.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
 
-        return CoordenadorDTO.toDTO(coordRepo.save(coordenador));
+        String senhaPlana = (usuarioSD.gerarSenhaPadrao(dto.nome()));
+        coordenador.setSenha(encoder.encode(senhaPlana));
+
+        CoordenadorDTO coordSalvo = CoordenadorDTO.toDTO(coordRepo.save(coordenador));
+
+        return new RetornoCriacaoUsuarioDTO<>(coordSalvo, senhaPlana);
     }
 
     public List<CoordenadorDTO> listarCoordenadoresAtivos() {

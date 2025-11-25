@@ -1,5 +1,6 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
@@ -7,6 +8,7 @@ import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEnco
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +23,20 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepo;
     private final UsuarioServiceDomain usuarioSD;
+    private final PasswordEncoder encoder;
 
     @Transactional
-    public UsuarioDTO cadastrarUsuario(UsuarioDTO dto) {
+    public RetornoCriacaoUsuarioDTO<UsuarioDTO> cadastrarUsuario(UsuarioDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
 
         Usuario usuario = dto.fromDTO();
-        usuario.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
+        String senhaDescriptografada = (usuarioSD.gerarSenhaPadrao(dto.nome()));
+        usuario.setSenha(encoder.encode(senhaDescriptografada));
 
-        return UsuarioDTO.toDTO(usuarioRepo.save(usuario));
+        UsuarioDTO usuarioSalvo = UsuarioDTO.toDTO(usuarioRepo.save(usuario));
+
+        return new RetornoCriacaoUsuarioDTO<>(usuarioSalvo, senhaDescriptografada);
     }
 
     public List<UsuarioDTO> listarUsuariosAtivos() {

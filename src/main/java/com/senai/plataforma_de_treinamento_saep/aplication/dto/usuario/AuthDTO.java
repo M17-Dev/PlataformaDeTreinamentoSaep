@@ -9,5 +9,5 @@ public class AuthDTO {
 
     public record RefreshRequest(String refreshToken) {}
 
-    public record UserResponse(String nome, String cpf, String role) {}
+    public record UserResponse(Long id, String nome, String cpf, String role) {}
 }

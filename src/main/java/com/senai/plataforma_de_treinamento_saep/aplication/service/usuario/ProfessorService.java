@@ -1,12 +1,14 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.ProfessorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +23,20 @@ public class ProfessorService {
 
     private final ProfessorRepository profRepo;
     private final UsuarioServiceDomain usuarioSD;
+    private final PasswordEncoder encoder;
 
     @Transactional
-    public ProfessorDTO cadastrarProfessor(ProfessorDTO dto) {
+    public RetornoCriacaoUsuarioDTO<ProfessorDTO> cadastrarProfessor(ProfessorDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
 
         Professor professor = dto.fromDto();
-        professor.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
+        String senhaDescriptografada = (usuarioSD.gerarSenhaPadrao(dto.nome()));
+        professor.setSenha(encoder.encode(senhaDescriptografada));
 
-        return ProfessorDTO.toDTO(profRepo.save(professor));
+        ProfessorDTO professorSalvo = ProfessorDTO.toDTO(profRepo.save(professor));
+
+        return new RetornoCriacaoUsuarioDTO<>(professorSalvo, senhaDescriptografada);
     }
 
     public List<ProfessorDTO> listarProfessoresAtivos() {

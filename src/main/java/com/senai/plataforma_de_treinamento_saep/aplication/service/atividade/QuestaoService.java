@@ -139,9 +139,6 @@ public class QuestaoService {
     }
 
     private void atualizarInfos(Questao questao, QuestaoDTO dto) {
-        if (dto.titulo() != null && !dto.titulo().isBlank()) {
-            questao.setTitulo(dto.titulo());
-        }
         if (dto.introducao() != null && !dto.introducao().isBlank()) {
             questao.setIntroducao(dto.introducao());
         }

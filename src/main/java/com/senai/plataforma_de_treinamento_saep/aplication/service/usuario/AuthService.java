@@ -30,7 +30,11 @@ public class AuthService {
             throw new BadCredentialsException("Credenciais inválidas");
         }
 
-        String accessToken = jwt.generateAccessToken(usuario.getCpf(), usuario.getTipoDeUsuario().name());
+        String accessToken = jwt.generateAccessToken(
+                usuario.getId(),
+                usuario.getCpf(),
+                usuario.getTipoDeUsuario().name()
+        );
         String refreshToken = jwt.generateRefreshToken(usuario.getCpf());
 
         return new AuthDTO.AuthResponse(accessToken, refreshToken);
@@ -45,7 +49,11 @@ public class AuthService {
         Usuario usuario = usuarios.findByCpf(cpf)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuário não encontrado"));
 
-        String newAccess = jwt.generateAccessToken(usuario.getCpf(), usuario.getTipoDeUsuario().name());
+        String newAccess = jwt.generateAccessToken(
+                usuario.getId(),
+                usuario.getCpf(),
+                usuario.getTipoDeUsuario().name()
+        );
         String newRefresh = jwt.generateRefreshToken(cpf);
 
         return new AuthDTO.AuthResponse(newAccess, newRefresh);

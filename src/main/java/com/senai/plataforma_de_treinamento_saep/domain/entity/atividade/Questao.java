@@ -21,7 +21,6 @@ public class Questao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    private String titulo;
     private String introducao;
     private String pergunta;
     private String imagem;

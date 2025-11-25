@@ -1,5 +1,6 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.UsuarioService;
@@ -21,7 +22,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<UsuarioDTO> cadastrarAluno(@RequestBody UsuarioDTO dto) {
+    public ResponseEntity<RetornoCriacaoUsuarioDTO<UsuarioDTO>> cadastrarAluno(@RequestBody UsuarioDTO dto) {
         return ResponseEntity
                 .status(201)
                 .body(usuarioService.cadastrarUsuario(dto));

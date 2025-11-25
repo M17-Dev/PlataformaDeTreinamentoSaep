@@ -42,8 +42,8 @@ public class AlunoService {
 
         usuarioSD.verificarCpfExistente(dto.cpf());
 
-        String senhaPlana = usuarioSD.gerarSenhaPadrao(dto.nome());
-        aluno.setSenha(passwordEncoder.encode(senhaPlana));
+        String senhaDescriptografada = usuarioSD.gerarSenhaPadrao(dto.nome());
+        aluno.setSenha(passwordEncoder.encode(senhaDescriptografada));
         associarRelacionamentos(aluno, dto);
 
         alunoRepo.save(aluno);
@@ -51,7 +51,7 @@ public class AlunoService {
 
         AlunoDTO alunoSalvoDTO = AlunoDTO.toDTO(aluno);
 
-        return new RetornoCriacaoUsuarioDTO<>(alunoSalvoDTO, senhaPlana);
+        return new RetornoCriacaoUsuarioDTO<>(alunoSalvoDTO, senhaDescriptografada);
     }
 
     public List<AlunoDTO> listarAlunosAtivos() {

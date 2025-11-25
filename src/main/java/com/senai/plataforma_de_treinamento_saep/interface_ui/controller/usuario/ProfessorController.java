@@ -1,6 +1,7 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.ProfessorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.ProfessorService;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
@@ -20,7 +21,7 @@ public class ProfessorController {
     private final ProfessorService profService;
 
     @PostMapping
-    public ResponseEntity<ProfessorDTO> cadastrarProfessor(@RequestBody ProfessorDTO dto) {
+    public ResponseEntity<RetornoCriacaoUsuarioDTO<ProfessorDTO>> cadastrarProfessor(@RequestBody ProfessorDTO dto) {
         return ResponseEntity
                 .status(201)
                 .body(profService.cadastrarProfessor(dto));

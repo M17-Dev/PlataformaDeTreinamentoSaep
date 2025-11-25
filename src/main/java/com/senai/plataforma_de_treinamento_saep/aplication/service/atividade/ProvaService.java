@@ -181,7 +181,6 @@ public class ProvaService {
                 ucId,
                 ucNome,
                 qtdQuestoes,
-                prova.getQtdAcertos(),
                 prova.getNivelDeDificuldade(),
                 questoesProva,
                 prova.isStatus()
@@ -206,7 +205,7 @@ public class ProvaService {
 
             for (Questao questao : questoesBuscadas) {
                 if (questao.getNivelDeDificuldade() != nivelDaProva) {
-                    throw new RegraDeNegocioException("A questão '" + questao.getTitulo() + "' (" + questao.getNivelDeDificuldade() +
+                    throw new RegraDeNegocioException("A questão '" + questao.getId() + "' (" + questao.getNivelDeDificuldade() +
                             ") não pode ser adicionada a uma prova de nível " + nivelDaProva);
                 }
                 questoesParaAdicionar.add(questao);

@@ -7,7 +7,6 @@ import java.util.List;
 
 public record QuestaoDTO(
         Long id,
-        String titulo,
         String introducao,
         String pergunta,
         String imagem,
@@ -28,7 +27,6 @@ public record QuestaoDTO(
 
         return new QuestaoDTO(
                 questao.getId(),
-                questao.getTitulo(),
                 questao.getIntroducao(),
                 questao.getPergunta(),
                 questao.getImagem(),
@@ -46,7 +44,6 @@ public record QuestaoDTO(
 
         return new QuestaoDTO(
                 questao.getId(),
-                questao.getTitulo(),
                 questao.getIntroducao(),
                 questao.getPergunta(),
                 questao.getImagem(),
@@ -60,7 +57,6 @@ public record QuestaoDTO(
 
     public Questao fromDTO() {
         Questao questao = new Questao();
-        questao.setTitulo(this.titulo);
         questao.setIntroducao(this.introducao);
         questao.setPergunta(this.pergunta);
         questao.setImagem(this.imagem);

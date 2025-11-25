@@ -35,6 +35,7 @@ public class AuthController {
     public AuthDTO.UserResponse me(Authentication auth) {
         var usuario = usuarios.findByCpf(auth.getName())
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuário não encontrado"));
-        return new AuthDTO.UserResponse(usuario.getNome(), usuario.getCpf(), usuario.getTipoDeUsuario().name());
+
+        return new AuthDTO.UserResponse(usuario.getId(), usuario.getNome(), usuario.getCpf(), usuario.getTipoDeUsuario().name());
     }
 }

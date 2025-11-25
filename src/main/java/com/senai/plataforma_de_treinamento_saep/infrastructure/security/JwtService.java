@@ -30,11 +30,12 @@ public class JwtService {
         this.refreshExpSeconds = refreshExpSeconds;
     }
 
-    public String generateAccessToken(String cpf, String tipoDeUsuario) {
+    public String generateAccessToken(Long id, String cpf, String tipoDeUsuario) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .setSubject(cpf)
-                .claim("role", tipoDeUsuario)
+                .claim("id", id)
+                .claim("tipoDeUsuario", tipoDeUsuario)
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plusSeconds(accessExpSeconds)))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -57,6 +58,12 @@ public class JwtService {
 
     public String extractRole(String token) {
         return (String) parseClaims(token).get("role");
+    }
+
+    public Long extractId(String token) {
+        // O claim vem como Integer ou Long dependendo da biblioteca, o Number cobre ambos
+        Number id = (Number) parseClaims(token).get("id");
+        return id != null ? id.longValue() : null;
     }
 
     private Claims parseClaims(String token) {

@@ -19,7 +19,6 @@ public class ProvaDTO {
             return Prova.builder()
                     .descricao(this.descricao)
                     .qtdQuestoes(0)
-                    .qtdAcertos(0)
                     .nivelDeDificuldade(this.nivelDeDificuldade)
                     .status(true)
                     .build();
@@ -35,7 +34,6 @@ public class ProvaDTO {
         Long unidadeCurricularId,
         String nomeUnidadeCurricular,
         int qtdQuestoes,
-        int qtdAcertos,
         NivelDeDificuldade nivelDeDificuldade,
         List<QuestaoDTO> questoesDaProva,
         boolean status
