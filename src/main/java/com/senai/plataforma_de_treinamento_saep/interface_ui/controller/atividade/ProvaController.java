@@ -52,7 +52,7 @@ public class ProvaController {
 
     @PostMapping("/{idProva}/questoes/adicionar")
     public ResponseEntity<ProvaDTO.ProvaResponseDTO> adicionarQuestaoNaProva(@PathVariable Long idProva, @RequestBody ProvaDTO.AdicionarQuestaoProvaDTO dto){
-        ProvaDTO.ProvaResponseDTO resposta = provaService.adicionarQuestaoNaProva(idProva, dto.idQuestaoASerAdicionada());
+        ProvaDTO.ProvaResponseDTO resposta = provaService.adicionarQuestaoNaProva(idProva, dto.idQuestao());
         return ResponseEntity.ok(resposta);
     }
 

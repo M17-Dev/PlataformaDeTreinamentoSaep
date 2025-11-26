@@ -44,7 +44,7 @@ public class ProvaDTO {
     ){}
 
     public record AdicionarQuestaoProvaDTO(
-            Long idQuestaoASerAdicionada
+            Long idQuestao
     ){}
 
     public record SubstituirQuestaoProvaDTO(

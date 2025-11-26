@@ -10,7 +10,7 @@ public record QuestaoDTO(
         String introducao,
         String pergunta,
         String imagem,
-        Long professorId,
+        Long usuarioId,
         List<RespostaDTO> respostas,
         Long unidadeCurricularId,
         NivelDeDificuldade nivelDeDificuldade,
@@ -18,7 +18,7 @@ public record QuestaoDTO(
 ) {
 
     public static QuestaoDTO toDTO(Questao questao) {
-        Long profId = (questao.getProfessorId() != null) ? questao.getProfessorId().getId() : null;
+        Long usuarioId = (questao.getUsuario() != null) ? questao.getUsuario().getId() : null;
         Long ucId = (questao.getUnidadeCurricular() != null) ? questao.getUnidadeCurricular().getId() : null;
 
         List<RespostaDTO> respostasDTO = questao.getRespostas().stream()
@@ -30,7 +30,7 @@ public record QuestaoDTO(
                 questao.getIntroducao(),
                 questao.getPergunta(),
                 questao.getImagem(),
-                profId,
+                usuarioId,
                 respostasDTO,
                 ucId,
                 questao.getNivelDeDificuldade(),
@@ -39,7 +39,7 @@ public record QuestaoDTO(
     }
 
     public static QuestaoDTO toDTO(Questao questao, List<RespostaDTO> respostasPersonalizadas) {
-        Long profId = (questao.getProfessorId() != null) ? questao.getProfessorId().getId() : null;
+        Long usuarioId = (questao.getUsuario() != null) ? questao.getUsuario().getId() : null;
         Long ucId = (questao.getUnidadeCurricular() != null) ? questao.getUnidadeCurricular().getId() : null;
 
         return new QuestaoDTO(
@@ -47,7 +47,7 @@ public record QuestaoDTO(
                 questao.getIntroducao(),
                 questao.getPergunta(),
                 questao.getImagem(),
-                profId,
+                usuarioId,
                 respostasPersonalizadas,
                 ucId,
                 questao.getNivelDeDificuldade(),

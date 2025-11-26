@@ -2,9 +2,13 @@ package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.ativida
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.atividade.QuestaoService;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,13 +20,22 @@ import java.util.List;
 @CrossOrigin("*")
 public class QuestaoController {
     private final QuestaoService questaoService;
+    private final UsuarioRepository usuarioRepo;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
-    public ResponseEntity<QuestaoDTO> cadastrarQuestao(@RequestBody QuestaoDTO dto) {
+    public ResponseEntity<QuestaoDTO> cadastrarQuestao(
+            @RequestBody QuestaoDTO dto,
+            Authentication authentication
+    ) {
+        String cpfLogado = authentication.getName();
+
+        Usuario usuario = usuarioRepo.findByCpf(cpfLogado)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuário não encontrado com o token informado."));
+
         return ResponseEntity
                 .status(201)
-                .body(questaoService.cadastrarQuestao(dto));
+                .body(questaoService.cadastrarQuestao(dto, usuario.getId()));
     }
 
     @GetMapping
@@ -44,8 +57,17 @@ public class QuestaoController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
-    public ResponseEntity<QuestaoDTO> atualizarQuestao(@PathVariable Long id, @RequestBody QuestaoDTO dto) {
-        return ResponseEntity.ok(questaoService.atualizarQuestao(id, dto));
+    public ResponseEntity<QuestaoDTO> atualizarQuestao(
+            @PathVariable Long id,
+            @RequestBody QuestaoDTO dto,
+            Authentication authentication
+    ) {
+        String cpfLogado = authentication.getName();
+
+        Usuario usuario = usuarioRepo.findByCpf(cpfLogado)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuário não encontrado com o token informado."));
+
+        return ResponseEntity.ok(questaoService.atualizarQuestao(id, dto, usuario.getId()));
     }
 
     @DeleteMapping("/{id}")

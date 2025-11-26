@@ -6,12 +6,12 @@ import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.Respost
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
-import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
-import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +26,16 @@ public class QuestaoService {
 
     private final QuestaoRepository questaoRepo;
     private final UnidadeCurricularRepository ucRepo;
-    private final ProfessorRepository profRepo;
+    private final UsuarioRepository usuarioRepo;
 
     @Transactional
-    public QuestaoDTO cadastrarQuestao(QuestaoDTO dto) {
-        verificarDadosObrigatorios(dto);
+    public QuestaoDTO cadastrarQuestao(QuestaoDTO dto, Long idUsuario) {
+        verificarDadosObrigatorios(dto, idUsuario);
         validarQuantidadeDeRespostas(dto.respostas());
         validarUnicaRespostaCorreta(dto.respostas());
 
         Questao questao = dto.fromDTO();
-        associarRelacionamentos(questao, dto);
+        associarRelacionamentos(questao, dto, idUsuario);
 
         List<Resposta> respostasQuestao = converterEAssociarRespostas(dto.respostas(), questao);
         questao.setRespostas(respostasQuestao);
@@ -90,12 +90,12 @@ public class QuestaoService {
     }
 
     @Transactional
-    public QuestaoDTO atualizarQuestao(Long id, QuestaoDTO dto) {
+    public QuestaoDTO atualizarQuestao(Long id, QuestaoDTO dto, Long idUsuarioLogado) {
         return questaoRepo.findById(id)
                 .map(
                         questao -> {
                             atualizarInfos(questao, dto);
-                            associarRelacionamentos(questao, dto);
+                            associarRelacionamentos(questao, dto, idUsuarioLogado);
                             Questao questaoAtualizada = questaoRepo.save(questao);
                             return QuestaoDTO.toDTO(questaoAtualizada);
                         }
@@ -153,11 +153,11 @@ public class QuestaoService {
         }
     }
 
-    private void associarRelacionamentos(Questao questao, QuestaoDTO dto) {
-        if (dto.professorId() != null) {
-            Professor prof = profRepo.findById(dto.professorId())
-                    .orElseThrow(() -> new EntidadeNaoEncontradaException("Professor de ID: " + dto.professorId() + " não encontrado."));
-            questao.setProfessorId(prof);
+    private void associarRelacionamentos(Questao questao, QuestaoDTO dto, Long idUsuarioLogado) {
+        if (idUsuarioLogado != null) {
+            Usuario usuario = usuarioRepo.findById(idUsuarioLogado)
+                    .orElseThrow(() -> new EntidadeNaoEncontradaException("Usuario de ID: " + idUsuarioLogado + " não encontrado."));
+            questao.setUsuario(usuario);
         }
 
         if (dto.unidadeCurricularId() != null) {
@@ -167,9 +167,9 @@ public class QuestaoService {
         }
     }
 
-    private void verificarDadosObrigatorios(QuestaoDTO dto) {
-        if (dto.professorId() == null) {
-            throw new RegraDeNegocioException("Um professor é obrigatório para cadastrar uma questão.");
+    private void verificarDadosObrigatorios(QuestaoDTO dto, Long idUsuarioLogado) {
+        if (idUsuarioLogado == null) {
+            throw new RegraDeNegocioException("Um admin/professor é obrigatório para cadastrar uma questão.");
         }
         if (dto.unidadeCurricularId() == null) {
             throw new RegraDeNegocioException("Uma unidade curricular é obrigatória para cadastrar uma questão");

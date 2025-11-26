@@ -2,6 +2,7 @@ package com.senai.plataforma_de_treinamento_saep.domain.entity.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,8 +27,8 @@ public class Questao {
     private String imagem;
 
     @ManyToOne
-    @JoinColumn(name = "professor_id")
-    private Professor professorId;
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
     @OneToMany(
             mappedBy = "questao",

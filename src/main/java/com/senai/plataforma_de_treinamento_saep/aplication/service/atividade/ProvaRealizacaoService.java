@@ -28,13 +28,13 @@ public class ProvaRealizacaoService {
     private final ProvaRealizadaRepository provaRealizadaRepo;
 
     @Transactional
-    public RealizacaoProvaDTO.ResultadoProvaDTO entregaProva(Long idProva, RealizacaoProvaDTO.EntregaProvaDTO dto){
+    public RealizacaoProvaDTO.ResultadoProvaDTO entregaProva(Long idProva, Long idAluno, RealizacaoProvaDTO.EntregaProvaDTO dto){
 
         Prova prova = provaRepo.findById(idProva)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Prova de ID: " + idProva + " não encontrada."));
 
-        Aluno aluno = alunoRepo.findById(dto.idAluno())
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("Aluno do ID: " + dto.idAluno() + " não encontrado."));
+        Aluno aluno = alunoRepo.findById(idAluno)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Aluno do ID: " + idAluno + " não encontrado."));
 
         ProvaRealizada provaRealizada = ProvaRealizada.builder()
                 .prova(prova)

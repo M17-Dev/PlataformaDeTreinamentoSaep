@@ -1,0 +1,3 @@
+Se o CMD normal não reconhecer, acessar este caminho: C:\Program Files\MySQL\MySQL Server 8.0\bin>
+comando: mysql -u root -p
+senha: senaisp

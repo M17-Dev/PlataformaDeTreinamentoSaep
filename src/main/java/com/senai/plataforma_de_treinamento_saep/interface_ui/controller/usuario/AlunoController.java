@@ -33,7 +33,7 @@ public class AlunoController {
         return ResponseEntity.ok(alunoService.listarAlunosAtivos());
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR', 'ALUNO')")
     @GetMapping("/{id}")
     public ResponseEntity<AlunoDTO> buscarPorId(@PathVariable Long id) {
         return alunoService.buscarPorId(id)
