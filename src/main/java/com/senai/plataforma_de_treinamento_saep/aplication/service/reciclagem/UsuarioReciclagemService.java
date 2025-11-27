@@ -9,13 +9,15 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class UsuarioReciclagemService {
 
-    public final UsuarioReciclagemRepository reciclagemRepo;
+    // Repositório agora é PRIVATE para garantir o encapsulamento
+    private final UsuarioReciclagemRepository reciclagemRepo;
     private final Random random = new Random();
 
     // --- MÉTODOS AUXILIARES ---
@@ -99,5 +101,12 @@ public class UsuarioReciclagemService {
         return reciclagemRepo.findByPin(pin)
                 .map(conta -> conta.getSenha().equals(senha))
                 .orElse(false);
+    }
+
+    /**
+     * Busca um usuário pelo PIN (Método seguro para uso no Controller).
+     */
+    public Optional<UsuarioReciclagem> buscarPorPin(String pin) {
+        return reciclagemRepo.findByPin(pin);
     }
 }

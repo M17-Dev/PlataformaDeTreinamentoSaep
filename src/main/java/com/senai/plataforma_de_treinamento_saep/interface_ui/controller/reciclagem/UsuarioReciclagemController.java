@@ -22,7 +22,7 @@ public class UsuarioReciclagemController {
 
     @GetMapping("/saldo/{pin}")
     public ResponseEntity<UsuarioReciclagemDTO> buscarPorPin(@PathVariable String pin) {
-        return reciclagemService.reciclagemRepo.findByPin(pin) // Nota: Se o campo 'tampinhaRepo' no service for privado, crie um método 'buscarPorPin' no Service.
+        return reciclagemService.buscarPorPin(pin)
                 .map(UsuarioReciclagemDTO::toDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
