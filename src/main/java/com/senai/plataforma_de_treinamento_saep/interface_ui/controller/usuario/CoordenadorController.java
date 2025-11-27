@@ -1,11 +1,13 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.CoordenadorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.CoordenadorService;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,11 +15,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/coordenador")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
+@CrossOrigin("*")
 public class CoordenadorController {
     private final CoordenadorService coordService;
 
     @PostMapping
-    public ResponseEntity<CoordenadorDTO> cadastrarCoordenador(@RequestBody CoordenadorDTO dto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<RetornoCriacaoUsuarioDTO<CoordenadorDTO>> cadastrarCoordenador(@RequestBody CoordenadorDTO dto) {
         return ResponseEntity
                 .status(201)
                 .body(coordService.cadastrarCoordenador(dto));
@@ -36,12 +41,14 @@ public class CoordenadorController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CoordenadorDTO> atualizarCoordenador(@PathVariable Long id, @RequestBody UsuarioUpdateDTO dto) {
         return ResponseEntity
                 .ok(coordService.atualizarCoordenador(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CoordenadorDTO> inativarCoordenador(@PathVariable Long id) {
         if (coordService.inativarCoordenador(id)) {
             return ResponseEntity.ok().build();
@@ -50,6 +57,7 @@ public class CoordenadorController {
     }
 
     @PutMapping("/reativar/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CoordenadorDTO> reativarCoordenador(@PathVariable Long id) {
         if (coordService.reativarCoordenador(id)) {
             return ResponseEntity.ok().build();

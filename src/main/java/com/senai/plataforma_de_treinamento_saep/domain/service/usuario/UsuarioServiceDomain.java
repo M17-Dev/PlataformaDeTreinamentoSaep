@@ -3,6 +3,7 @@ package com.senai.plataforma_de_treinamento_saep.domain.service.usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.ValidacaoDadosException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -39,7 +40,10 @@ public class UsuarioServiceDomain {
         String numeros = gerarNumerosAleatorios();
 
         // 4. Junta tudo (Ex: "Jose" + "13579" -> "Jose13579")
-        return nomeLimpo + numeros;
+        String senhaTextoPuro = nomeLimpo + numeros;
+
+        System.out.println(senhaTextoPuro);
+        return senhaTextoPuro;
     }
 
     private String removerAcentos(String texto) {

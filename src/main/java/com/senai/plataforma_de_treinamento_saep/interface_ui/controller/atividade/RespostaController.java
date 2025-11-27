@@ -4,6 +4,7 @@ import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.Respost
 import com.senai.plataforma_de_treinamento_saep.aplication.service.atividade.RespostaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,18 +12,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/resposta")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
+@CrossOrigin("*")
 public class RespostaController {
 
     private final RespostaService respostaService;
 
-    @PostMapping
-    public ResponseEntity<RespostaDTO> cadastrarResposta(@RequestBody RespostaDTO respostaDTO) {
-        return ResponseEntity.status(201).body(respostaService.cadastrarResposta(respostaDTO));
-    }
-
     @GetMapping
     public ResponseEntity<List<RespostaDTO>> listarRespostas() {
         return ResponseEntity.ok(respostaService.listarRespostas());
+    }
+
+    @GetMapping("/questao/{idQuestao}")
+    public ResponseEntity<List<RespostaDTO>> listarRespostasDeUmaQuestao(@PathVariable Long idQuestao){
+        return ResponseEntity.ok(respostaService.listarRespostasDeUmaQuestao(idQuestao));
     }
 
     @GetMapping("/{id}")
@@ -37,12 +40,20 @@ public class RespostaController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     public ResponseEntity<RespostaDTO> atualizarResposta(@PathVariable Long id, @RequestBody RespostaDTO respostaDTO) {
         return respostaService.atualizarResposta(respostaDTO, id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/inativar/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
     public ResponseEntity<?> deletarResposta(@PathVariable Long id) {
         return respostaService.deletarResposta(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/reativar/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
+    public ResponseEntity<?> reativarResposta(@PathVariable Long id){
+        return respostaService.reativarResposta(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }

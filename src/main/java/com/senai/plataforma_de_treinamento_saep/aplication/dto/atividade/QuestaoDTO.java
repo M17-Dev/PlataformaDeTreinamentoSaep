@@ -7,11 +7,10 @@ import java.util.List;
 
 public record QuestaoDTO(
         Long id,
-        String titulo,
         String introducao,
         String pergunta,
         String imagem,
-        Long professorId,
+        Long usuarioId,
         List<RespostaDTO> respostas,
         Long unidadeCurricularId,
         NivelDeDificuldade nivelDeDificuldade,
@@ -19,7 +18,7 @@ public record QuestaoDTO(
 ) {
 
     public static QuestaoDTO toDTO(Questao questao) {
-        Long profId = (questao.getProfessorId() != null) ? questao.getProfessorId().getId() : null;
+        Long usuarioId = (questao.getUsuario() != null) ? questao.getUsuario().getId() : null;
         Long ucId = (questao.getUnidadeCurricular() != null) ? questao.getUnidadeCurricular().getId() : null;
 
         List<RespostaDTO> respostasDTO = questao.getRespostas().stream()
@@ -28,12 +27,28 @@ public record QuestaoDTO(
 
         return new QuestaoDTO(
                 questao.getId(),
-                questao.getTitulo(),
                 questao.getIntroducao(),
                 questao.getPergunta(),
                 questao.getImagem(),
-                profId,
+                usuarioId,
                 respostasDTO,
+                ucId,
+                questao.getNivelDeDificuldade(),
+                questao.isStatus()
+        );
+    }
+
+    public static QuestaoDTO toDTO(Questao questao, List<RespostaDTO> respostasPersonalizadas) {
+        Long usuarioId = (questao.getUsuario() != null) ? questao.getUsuario().getId() : null;
+        Long ucId = (questao.getUnidadeCurricular() != null) ? questao.getUnidadeCurricular().getId() : null;
+
+        return new QuestaoDTO(
+                questao.getId(),
+                questao.getIntroducao(),
+                questao.getPergunta(),
+                questao.getImagem(),
+                usuarioId,
+                respostasPersonalizadas,
                 ucId,
                 questao.getNivelDeDificuldade(),
                 questao.isStatus()
@@ -42,7 +57,6 @@ public record QuestaoDTO(
 
     public Questao fromDTO() {
         Questao questao = new Questao();
-        questao.setTitulo(this.titulo);
         questao.setIntroducao(this.introducao);
         questao.setPergunta(this.pergunta);
         questao.setImagem(this.imagem);

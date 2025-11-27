@@ -1,11 +1,13 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.ProfessorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.ProfessorService;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,22 +15,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/professor")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR')")
+@CrossOrigin("*")
 public class ProfessorController {
     private final ProfessorService profService;
 
     @PostMapping
-    public ResponseEntity<ProfessorDTO> cadastrarProfessor(@RequestBody ProfessorDTO dto) {
+    public ResponseEntity<RetornoCriacaoUsuarioDTO<ProfessorDTO>> cadastrarProfessor(@RequestBody ProfessorDTO dto) {
         return ResponseEntity
                 .status(201)
                 .body(profService.cadastrarProfessor(dto));
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
     public ResponseEntity<List<ProfessorDTO>> listarProfessoresAtivos() {
         return ResponseEntity.ok(profService.listarProfessoresAtivos());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
     public ResponseEntity<ProfessorDTO> buscarPorId(@PathVariable Long id) {
         return profService.buscarPorId(id)
                 .map(ResponseEntity::ok)

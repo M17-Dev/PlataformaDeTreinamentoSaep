@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -26,7 +25,8 @@ public class Prova {
     private Long idProva;
 
     private String descricao;
-    private LocalDate dataProva;
+    private LocalDate dataCriacao;
+    private LocalDate dataUltimaAtualizacao;
 
     @ManyToMany
     @JoinTable(
@@ -51,10 +51,21 @@ public class Prova {
     private List<Questao> questoes = new ArrayList<>();
 
     private int qtdQuestoes;
-    private int qtdAcertos;
+    //private int qtdAcertos;
 
     @Enumerated(EnumType.STRING)
     private NivelDeDificuldade nivelDeDificuldade;
 
     private boolean status;
+
+    @PrePersist
+    public void preencherDataProva() {
+        this.dataCriacao = LocalDate.now();
+        this.dataUltimaAtualizacao = LocalDate.now();
+    }
+
+    @PreUpdate
+    public void preencherDataAtualizacao() {
+        this.dataUltimaAtualizacao = LocalDate.now();
+    }
 }

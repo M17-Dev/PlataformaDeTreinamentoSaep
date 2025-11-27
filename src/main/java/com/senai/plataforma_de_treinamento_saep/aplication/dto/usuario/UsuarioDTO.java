@@ -10,6 +10,7 @@ public record UsuarioDTO(
         Long id,
         String nome,
         String cpf,
+        String email,
         String senha,
         TipoDeUsuario tipoDeUsuario,
         boolean status
@@ -25,6 +26,7 @@ public record UsuarioDTO(
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getCpf(),
+                usuario.getEmail(),
                 usuario.getSenha(),
                 tipoUsuario,
                 usuario.isStatus()
@@ -33,6 +35,7 @@ public record UsuarioDTO(
 
     public Usuario fromDTO() {
         Usuario usuario = switch (tipoDeUsuario) {
+            case ADMIN -> throw new RuntimeException("O tipo de usuário só pode ser [ALUNO, PROFESSOR, COORDENADOR}");
             case ALUNO -> new Aluno();
             case PROFESSOR -> new Professor();
             case COORDENADOR -> new Coordenador();
@@ -40,6 +43,7 @@ public record UsuarioDTO(
 
         usuario.setNome(nome);
         usuario.setCpf(cpf);
+        usuario.setEmail(email);
         usuario.setSenha(senha);
         usuario.setTipoDeUsuario(tipoDeUsuario);
         usuario.setStatus(true);

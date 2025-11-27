@@ -2,6 +2,8 @@ package com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 
+import java.util.Objects;
+
 public record RespostaDTO(
         Long id,
         String texto,
@@ -21,7 +23,8 @@ public record RespostaDTO(
     public Resposta fromDTO() {
         Resposta resposta = new Resposta();
         resposta.setTexto(this.texto);
-        resposta.setCertoOuErrado(this.certaOuErrada);
+        resposta.setCertoOuErrado(Objects.requireNonNullElse(certaOuErrada, false));
+
         return resposta;
     }
 }

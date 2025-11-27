@@ -1,14 +1,16 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.CoordenadorDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
-import com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem.UsuarioTampinhaService; // Importação Necessária
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.CoordenadorRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,25 +18,26 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CoordenadorService {
 
     private final CoordenadorRepository coordRepo;
     private final UsuarioServiceDomain usuarioSD;
-    private final UsuarioTampinhaService tampinhaService; // INJEÇÃO DO SERVIÇO DE RECICLAGEM
+    private final PasswordEncoder encoder;
 
-    public CoordenadorDTO cadastrarCoordenador(CoordenadorDTO dto) {
+    @Transactional
+    public RetornoCriacaoUsuarioDTO<CoordenadorDTO> cadastrarCoordenador(CoordenadorDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         usuarioSD.verificarCpfExistente(dto.cpf());
 
         Coordenador coordenador = dto.fromDto();
-        coordenador.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
 
-        Coordenador coordenadorSalvo = coordRepo.save(coordenador);
+        String senhaPlana = (usuarioSD.gerarSenhaPadrao(dto.nome()));
+        coordenador.setSenha(encoder.encode(senhaPlana));
 
-        // CRIAÇÃO AUTOMÁTICA: Cria o perfil de tampinhas após salvar o coordenador
-        tampinhaService.criarAutomatico(coordenadorSalvo);
+        CoordenadorDTO coordSalvo = CoordenadorDTO.toDTO(coordRepo.save(coordenador));
 
-        return CoordenadorDTO.toDTO(coordenadorSalvo);
+        return new RetornoCriacaoUsuarioDTO<>(coordSalvo, senhaPlana);
     }
 
     public List<CoordenadorDTO> listarCoordenadoresAtivos() {
@@ -55,6 +58,7 @@ public class CoordenadorService {
                 );
     }
 
+    @Transactional
     public CoordenadorDTO atualizarCoordenador(Long id, UsuarioUpdateDTO dto) {
         return coordRepo.findById(id)
                 .map(
@@ -67,6 +71,7 @@ public class CoordenadorService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Coordenador dono do ID: " + id + " não encontrado"));
     }
 
+    @Transactional
     public boolean inativarCoordenador(Long id) {
         return coordRepo.findById(id)
                 .filter(
@@ -82,6 +87,7 @@ public class CoordenadorService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarCoordenador(Long id) {
         return coordRepo.findById(id)
                 .filter(
@@ -100,6 +106,9 @@ public class CoordenadorService {
     private void atualizarInfos(Coordenador coord, UsuarioUpdateDTO dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             coord.setNome(dto.nome());
+        }
+        if (dto.email() != null && !dto.email().isBlank()) {
+            coord.setEmail(dto.email());
         }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             coord.setSenha(dto.senha());

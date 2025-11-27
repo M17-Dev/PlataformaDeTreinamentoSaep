@@ -1,11 +1,13 @@
 package com.senai.plataforma_de_treinamento_saep.interface_ui.controller.usuario;
 
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.service.usuario.UsuarioService;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,12 +15,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/usuario")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
+@CrossOrigin("*")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<UsuarioDTO> cadastrarAluno(@RequestBody UsuarioDTO dto) {
+    public ResponseEntity<RetornoCriacaoUsuarioDTO<UsuarioDTO>> cadastrarAluno(@RequestBody UsuarioDTO dto) {
         return ResponseEntity
                 .status(201)
                 .body(usuarioService.cadastrarUsuario(dto));

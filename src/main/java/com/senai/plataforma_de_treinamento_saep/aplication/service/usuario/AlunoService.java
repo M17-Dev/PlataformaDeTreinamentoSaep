@@ -1,16 +1,21 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
-import com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem.UsuarioTampinhaService; // Importação Necessária
+import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.ProvaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.CursoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.service.usuario.UsuarioServiceDomain;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,31 +23,35 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AlunoService {
 
     private final AlunoRepository alunoRepo;
     private final CursoRepository cursoRepo;
+    private final ProvaRepository provaRepo;
     private final UsuarioServiceDomain usuarioSD;
-    private final UsuarioTampinhaService tampinhaService; // INJEÇÃO DO SERVIÇO DE RECICLAGEM
+    private final PasswordEncoder passwordEncoder;
 
-    public AlunoDTO cadastrarAluno(AlunoDTO dto) {
+    @Transactional
+    public RetornoCriacaoUsuarioDTO<AlunoDTO> cadastrarAluno(AlunoDTO dto) {
         usuarioSD.consultarDadosObrigatorios(dto.nome(), dto.cpf());
         if (dto.cursoId() == null){
-            throw new RuntimeException("Um curso é obrigatório para criar um aluno.");
+            throw new RegraDeNegocioException("Um curso é obrigatório para criar um aluno.");
         }
         Aluno aluno = dto.fromDto();
 
         usuarioSD.verificarCpfExistente(dto.cpf());
-        aluno.setSenha(usuarioSD.gerarSenhaPadrao(dto.nome()));
 
+        String senhaDescriptografada = usuarioSD.gerarSenhaPadrao(dto.nome());
+        aluno.setSenha(passwordEncoder.encode(senhaDescriptografada));
         associarRelacionamentos(aluno, dto);
 
-        Aluno alunoSalvo = alunoRepo.save(aluno);
+        alunoRepo.save(aluno);
+        associarProvasAutomaticamente(aluno);
 
-        // CRIAÇÃO AUTOMÁTICA: Cria o perfil de tampinhas após salvar o aluno
-        tampinhaService.criarAutomatico(alunoSalvo);
+        AlunoDTO alunoSalvoDTO = AlunoDTO.toDTO(aluno);
 
-        return AlunoDTO.toDTO(alunoSalvo);
+        return new RetornoCriacaoUsuarioDTO<>(alunoSalvoDTO, senhaDescriptografada);
     }
 
     public List<AlunoDTO> listarAlunosAtivos() {
@@ -63,6 +72,7 @@ public class AlunoService {
                 );
     }
 
+    @Transactional
     public AlunoDTO atualizarAluno(Long id, UsuarioUpdateDTO alunoDTO) {
         return alunoRepo.findById(id)
                 .map(
@@ -75,6 +85,7 @@ public class AlunoService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Aluno dono do ID: " + id + " não encontrado"));
     }
 
+    @Transactional
     public boolean inativarAluno(Long id) {
         return alunoRepo.findById(id)
                 .filter(
@@ -90,6 +101,7 @@ public class AlunoService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarAluno(Long id) {
         return alunoRepo.findById(id)
                 .filter(
@@ -109,6 +121,9 @@ public class AlunoService {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             aluno.setNome(dto.nome());
         }
+        if (dto.email() != null && !dto.email().isBlank()) {
+            aluno.setEmail(dto.email());
+        }
         if (dto.senha() != null && !dto.senha().isBlank()) {
             aluno.setSenha(dto.senha());
         }
@@ -118,5 +133,18 @@ public class AlunoService {
         Curso curso = cursoRepo.findById(dto.cursoId())
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Curso referente ao ID: " + dto.cursoId() + " não encontrado."));
         aluno.setCurso(curso);
+    }
+
+    private void associarProvasAutomaticamente(Aluno aluno){
+        List<Prova> provasDoCurso = provaRepo.findByCursoId(aluno.getCurso().getId());
+
+        if (!provasDoCurso.isEmpty()) {
+            for (Prova prova : provasDoCurso) {
+                prova.getAlunos().add(aluno);
+                aluno.getProvas().add(prova);
+            }
+
+            provaRepo.saveAll(provasDoCurso);
+        }
     }
 }

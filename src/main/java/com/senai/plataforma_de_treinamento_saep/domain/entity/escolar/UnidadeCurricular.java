@@ -20,6 +20,7 @@ public class UnidadeCurricular {
     private Long id;
 
     private String nome;
+    private String fraseDaUc;
 
     @OneToMany(mappedBy = "unidadeCurricular")
     private List<Questao> questoes = new ArrayList<>();

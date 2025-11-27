@@ -1,16 +1,17 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.escolar;
 
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.escolar.UnidadeCurricularDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.CursoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,17 +20,25 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UnidadeCurricularService {
     private final UnidadeCurricularRepository unidadeCurricularRepository;
     private final CursoRepository cursoRepository;
     private final QuestaoRepository questaoRepository;
 
+    @Transactional
     public UnidadeCurricularDTO cadastrarUnidadeCurricular(UnidadeCurricularDTO dto) {
         if (dto.cursoId() == null){
-            throw new RuntimeException("Uma UC deve pertencer a um Curso.");
+            throw new RegraDeNegocioException("Uma UC deve pertencer a um Curso.");
+        }
+        UnidadeCurricular uc = dto.fromDTO();
+
+        if (dto.fraseUc() != null && !dto.fraseUc().isBlank()){
+            uc.setFraseDaUc(dto.fraseUc());
+        }else {
+            uc.setFraseDaUc("");
         }
 
-        UnidadeCurricular uc = dto.fromDTO();
         associarRelacionamentos(uc, dto);
 
         return UnidadeCurricularDTO.toDTO(unidadeCurricularRepository.save(uc));
@@ -41,9 +50,15 @@ public class UnidadeCurricularService {
                 .map(
                         UnidadeCurricularDTO::toDTO
                 )
-                .collect(
-                        Collectors.toList()
-                );
+                .toList();
+    }
+
+    public List<UnidadeCurricularDTO> listarUnidadesCurricularesDoCurso(Long idCurso){
+        return unidadeCurricularRepository.findByCursoIdAndStatusTrue(idCurso).stream()
+                .map(
+                        UnidadeCurricularDTO::toDTO
+                )
+                .toList();
     }
 
     public Optional<UnidadeCurricularDTO> buscarPorId(Long id) {
@@ -53,6 +68,7 @@ public class UnidadeCurricularService {
                 );
     }
 
+    @Transactional
     public UnidadeCurricularDTO atualizarUnidadeCurricular(Long id, UnidadeCurricularDTO dto) {
         return unidadeCurricularRepository.findById(id)
                 .map(
@@ -66,6 +82,7 @@ public class UnidadeCurricularService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("UC com o ID:" + id + " não encontrada."));
     }
 
+    @Transactional
     public boolean inativarUnidadeCurricular(Long id) {
         return unidadeCurricularRepository.findById(id)
                 .filter(
@@ -81,6 +98,7 @@ public class UnidadeCurricularService {
                 .orElse(false);
     }
 
+    @Transactional
     public boolean reativarUnidadeCurricular(Long id) {
         return unidadeCurricularRepository.findById(id)
                 .filter(
@@ -99,6 +117,9 @@ public class UnidadeCurricularService {
     private void atualizarInfos(UnidadeCurricular uc, UnidadeCurricularDTO dto) {
         if (dto.nome() != null && !dto.nome().isBlank()) {
             uc.setNome(dto.nome());
+        }
+        if (dto.fraseUc() != null && !dto.fraseUc().isBlank()){
+            uc.setFraseDaUc(dto.fraseUc());
         }
     }
 

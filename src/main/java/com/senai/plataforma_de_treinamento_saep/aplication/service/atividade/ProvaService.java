@@ -8,12 +8,14 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCur
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.NivelDeDificuldade;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
+import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.ProvaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProvaService {
     private final ProvaRepository provaRepo;
     private final AlunoRepository alunoRepo;
@@ -30,6 +33,7 @@ public class ProvaService {
     private final QuestaoRepository questaoRepo;
 
 
+    @Transactional
     public ProvaDTO.ProvaResponseDTO cadastrarProva(ProvaDTO.ProvaRequestDTO dto){
 
         Prova prova = dto.toEntity();
@@ -50,13 +54,111 @@ public class ProvaService {
                 );
     }
 
+    public List<ProvaDTO.ProvaResponseDTO> listarProvasPeloIdDoCurso(Long idCurso){
+        return provaRepo.findByCursoId(idCurso).stream()
+                .map(
+                        this::converterProvaParaResponseDto
+                )
+                .toList();
+    }
+
     public Optional<ProvaDTO.ProvaResponseDTO> buscarProvaPorId(Long id){
         return Optional.of(provaRepo.findById(id)
                 .map(this::converterProvaParaResponseDto)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não foi encontrada.")));
     }
 
-    //Métodos referentes ao "Response" da prova
+    @Transactional
+    public ProvaDTO.ProvaResponseDTO atualizarProva(Long id, ProvaDTO.AtualizarProvaDTO dto){
+        return provaRepo.findById(id)
+                .map(
+                        prova -> {
+                            atualizarInfos(prova, dto);
+                            Prova provaAtualizada = provaRepo.save(prova);
+                            return converterProvaParaResponseDto(provaAtualizada);
+                        }
+                )
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + id + " não encontrada."));
+    }
+
+    @Transactional
+    public boolean desativarProva(Long id){
+        return provaRepo.findById(id)
+                .filter(
+                        Prova::isStatus
+                )
+                .map(
+                        prova -> {
+                            prova.setStatus(false);
+                            provaRepo.save(prova);
+                            return true;
+                        }
+                )
+                .orElse(false);
+    }
+
+    @Transactional
+    public boolean reativarProva(Long id){
+        return provaRepo.findById(id)
+                .filter(
+                        prova -> !prova.isStatus()
+                )
+                .map(
+                        prova -> {
+                            prova.setStatus(true);
+                            provaRepo.save(prova);
+                            return true;
+                        }
+                )
+                .orElse(false);
+    }
+
+    @Transactional
+    public ProvaDTO.ProvaResponseDTO adicionarQuestaoNaProva(Long idProva, Long idQuestaoASerAdicionada){
+        Prova prova = provaRepo.findById(idProva)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + idProva + " não foi encontrada."));
+
+        Questao questao = questaoRepo.findById(idQuestaoASerAdicionada)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A questão de ID: " + idQuestaoASerAdicionada + " não foi encontrada"));
+
+        validarDadosDaQuestao(prova, questao);
+        int questoesAtivasNaProva = provaRepo.countActiveQuestionsByProvaId(idProva);
+
+        if (questoesAtivasNaProva >= 5){
+            throw new RegraDeNegocioException("A prova de ID: " + idProva + " já atingiu o limite de 5 questões ATIVAS.");
+        }
+
+        prova.getQuestoes().add(questao);
+        prova.setQtdQuestoes(prova.getQuestoes().size());
+
+        Prova provaAtualizada = provaRepo.save(prova);
+
+        return converterProvaParaResponseDto(provaAtualizada);
+    }
+
+    @Transactional
+    public ProvaDTO.ProvaResponseDTO substituirQuestao(Long idProva,Long idQuestaoASerAtualizada, Long idNovaQuestao){
+        Prova prova = provaRepo.findById(idProva)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A prova de ID: " + idProva + " não foi encontrada"));
+
+        Questao novaQuestao = questaoRepo.findById(idNovaQuestao)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A questao de ID: " + idNovaQuestao + " não encontrada."));
+
+        validarDadosDaQuestao(prova, novaQuestao);
+
+        Questao questaoAntiga = prova.getQuestoes().stream()
+                .filter(q -> q.getId().equals(idQuestaoASerAtualizada))
+                .findFirst()
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("A questão de ID: " + idQuestaoASerAtualizada + " não foi encontrada"));
+
+        prova.getQuestoes().remove(questaoAntiga);
+        prova.getQuestoes().add(novaQuestao);
+
+        Prova provaAtualizada = provaRepo.save(prova);
+
+        return converterProvaParaResponseDto(provaAtualizada);
+    }
+
     private ProvaDTO.ProvaResponseDTO converterProvaParaResponseDto(Prova prova){
         List<Long> alunoIds = (prova.getAlunos() != null) ?
                 prova.getAlunos().stream().map(Aluno::getId).toList() : Collections.emptyList();
@@ -73,12 +175,12 @@ public class ProvaService {
         return new ProvaDTO.ProvaResponseDTO(
                 prova.getIdProva(),
                 prova.getDescricao(),
-                prova.getDataProva(),
+                prova.getDataCriacao(),
+                prova.getDataUltimaAtualizacao(),
                 alunoIds,
                 ucId,
                 ucNome,
                 qtdQuestoes,
-                prova.getQtdAcertos(),
                 prova.getNivelDeDificuldade(),
                 questoesProva,
                 prova.isStatus()
@@ -90,14 +192,10 @@ public class ProvaService {
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("UC não encontrada."));
         prova.setUnidadeCurricular(uc);
 
-        if (dto.alunosId() != null && !dto.alunosId().isEmpty()) {
-            List<Aluno> alunos = alunoRepo.findAllById(dto.alunosId());
+        Long cursoId = uc.getCurso().getId();
+        List<Aluno> alunosDoCurso = alunoRepo.findAllByCursoId(cursoId);
 
-            if (alunos.size() != dto.alunosId().size()) {
-                throw new EntidadeNaoEncontradaException("Um ou mais Alunos da lista não foram encontrados.");
-            }
-            prova.setAlunos(alunos);
-        }
+        prova.setAlunos(alunosDoCurso);
 
         NivelDeDificuldade nivelDaProva = prova.getNivelDeDificuldade();
         List<Questao> questoesParaAdicionar = new ArrayList<>();
@@ -107,7 +205,7 @@ public class ProvaService {
 
             for (Questao questao : questoesBuscadas) {
                 if (questao.getNivelDeDificuldade() != nivelDaProva) {
-                    throw new RuntimeException("A questão '" + questao.getTitulo() + "' (" + questao.getNivelDeDificuldade() +
+                    throw new RegraDeNegocioException("A questão '" + questao.getId() + "' (" + questao.getNivelDeDificuldade() +
                             ") não pode ser adicionada a uma prova de nível " + nivelDaProva);
                 }
                 questoesParaAdicionar.add(questao);
@@ -115,5 +213,20 @@ public class ProvaService {
         }
         prova.setQuestoes(questoesParaAdicionar);
         prova.setQtdQuestoes(questoesParaAdicionar.size());
+    }
+
+    private void atualizarInfos(Prova prova, ProvaDTO.AtualizarProvaDTO dto){
+        if (prova.getDescricao() != null && !dto.descricao().isBlank()){
+            prova.setDescricao(dto.descricao());
+        }
+    }
+
+    private void validarDadosDaQuestao(Prova prova, Questao questao){
+        if (!questao.getUnidadeCurricular().getId().equals(prova.getUnidadeCurricular().getId())){
+            throw new RegraDeNegocioException("A nova questão não pertence à mesma Unidade Curricular da prova.");
+        }
+        if (!questao.getNivelDeDificuldade().equals(prova.getNivelDeDificuldade())){
+            throw new RegraDeNegocioException("O nível de dificuldade da nova questão (" + questao.getNivelDeDificuldade() + ") não é o mesmo da prova (" + prova.getNivelDeDificuldade() + ").");
+        }
     }
 }

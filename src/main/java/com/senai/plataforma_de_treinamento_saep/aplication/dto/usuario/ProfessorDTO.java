@@ -9,6 +9,7 @@ public record ProfessorDTO(
         Long id,
         String nome,
         String cpf,
+        String email,
         String senha,
         TipoDeUsuario tipoDeUsuario,
         boolean status,
@@ -21,6 +22,7 @@ public record ProfessorDTO(
                 professor.getId(),
                 professor.getNome(),
                 professor.getCpf(),
+                professor.getEmail(),
                 professor.getSenha(),
                 professor.getTipoDeUsuario(),
                 professor.isStatus(),
@@ -45,6 +47,7 @@ public record ProfessorDTO(
         Professor professor = new Professor();
         professor.setNome(nome);
         professor.setCpf(cpf);
+        professor.setEmail(email);
         professor.setSenha(senha);
         professor.setTipoDeUsuario(TipoDeUsuario.PROFESSOR);
         professor.setStatus(true);
