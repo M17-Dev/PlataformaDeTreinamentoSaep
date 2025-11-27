@@ -1,5 +1,6 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario;
 
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.reciclagem.UsuarioReciclagemDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Coordenador;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;
 
@@ -9,7 +10,8 @@ public record CoordenadorDTO(
         String cpf,
         String email,
         String senha,
-        boolean status
+        boolean status,
+        UsuarioReciclagemDTO reciclagem
 ) {
     public static CoordenadorDTO toDTO(Coordenador coordenador) {
         return new CoordenadorDTO(
@@ -18,7 +20,20 @@ public record CoordenadorDTO(
                 coordenador.getCpf(),
                 coordenador.getEmail(),
                 coordenador.getSenha(),
-                coordenador.isStatus()
+                coordenador.isStatus(),
+                null
+        );
+    }
+
+    public static CoordenadorDTO toDTO(Coordenador coordenador, UsuarioReciclagemDTO reciclagem) {
+        return new CoordenadorDTO(
+                coordenador.getId(),
+                coordenador.getNome(),
+                coordenador.getCpf(),
+                coordenador.getEmail(),
+                coordenador.getSenha(),
+                coordenador.isStatus(),
+                reciclagem
         );
     }
 
@@ -30,7 +45,6 @@ public record CoordenadorDTO(
         coordenador.setSenha(senha);
         coordenador.setTipoDeUsuario(TipoDeUsuario.COORDENADOR);
         coordenador.setStatus(true);
-
         return coordenador;
     }
 }

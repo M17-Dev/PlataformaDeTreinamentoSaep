@@ -1,8 +1,11 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.reciclagem.UsuarioReciclagemDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.ProfessorDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem.UsuarioReciclagemService;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.reciclagem.UsuarioReciclagem;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.ProfessorRepository;
@@ -24,6 +27,10 @@ public class ProfessorService {
     private final ProfessorRepository profRepo;
     private final UsuarioServiceDomain usuarioSD;
     private final PasswordEncoder encoder;
+    // Injeção do Service de Reciclagem
+    private final UsuarioReciclagemService reciclagemService;
+
+    // ... imports ...
 
     @Transactional
     public RetornoCriacaoUsuarioDTO<ProfessorDTO> cadastrarProfessor(ProfessorDTO dto) {
@@ -34,71 +41,62 @@ public class ProfessorService {
         String senhaDescriptografada = (usuarioSD.gerarSenhaPadrao(dto.nome()));
         professor.setSenha(encoder.encode(senhaDescriptografada));
 
-        ProfessorDTO professorSalvo = ProfessorDTO.toDTO(profRepo.save(professor));
+        // 1. Salva o Professor
+        Professor professorSalvoEntity = profRepo.save(professor);
 
-        return new RetornoCriacaoUsuarioDTO<>(professorSalvo, senhaDescriptografada);
+        // 2. Cria a conta e CAPTURA o retorno
+        UsuarioReciclagem reciclagemSalva = reciclagemService.criarContaVinculada(professorSalvoEntity);
+        UsuarioReciclagemDTO reciclagemDTO = UsuarioReciclagemDTO.toDTO(reciclagemSalva);
+
+        // 3. Converte usando o método que ACEITA a reciclagem
+        ProfessorDTO professorSalvoDTO = ProfessorDTO.toDTO(professorSalvoEntity, reciclagemDTO);
+
+        return new RetornoCriacaoUsuarioDTO<>(professorSalvoDTO, senhaDescriptografada);
     }
 
     public List<ProfessorDTO> listarProfessoresAtivos() {
         return profRepo.findByStatusTrue()
                 .stream()
-                .map(
-                        ProfessorDTO::toDTO
-                )
-                .collect(
-                        Collectors.toList()
-                );
+                .map(ProfessorDTO::toDTO)
+                .collect(Collectors.toList());
     }
 
     public Optional<ProfessorDTO> buscarPorId(Long id) {
-        return profRepo.findById(id)
-                .map(
-                        ProfessorDTO::toDTO
-                );
+        return profRepo.findById(id).map(ProfessorDTO::toDTO);
     }
 
     @Transactional
     public ProfessorDTO atualizarProfessor(Long id, UsuarioUpdateDTO profDTO) {
         return profRepo.findById(id)
-                .map(
-                        professor -> {
-                            atualizarInfos(professor, profDTO);
-                            Professor professorAtualizado = profRepo.save(professor);
-                            return ProfessorDTO.toDTO(professorAtualizado);
-                        }
-                )
+                .map(professor -> {
+                    atualizarInfos(professor, profDTO);
+                    Professor professorAtualizado = profRepo.save(professor);
+                    return ProfessorDTO.toDTO(professorAtualizado);
+                })
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Professor dono do ID: " + id + " não encontrado"));
     }
 
     @Transactional
     public boolean inativarProfessor(Long id) {
         return profRepo.findById(id)
-                .filter(
-                        Professor::isStatus
-                )
-                .map(
-                        professor -> {
-                            professor.setStatus(false);
-                            profRepo.save(professor);
-                            return true;
-                        }
-                )
+                .filter(Professor::isStatus)
+                .map(professor -> {
+                    professor.setStatus(false);
+                    profRepo.save(professor);
+                    return true;
+                })
                 .orElse(false);
     }
 
     @Transactional
     public boolean reativarProfessor(Long id) {
         return profRepo.findById(id)
-                .filter(
-                        professor -> !professor.isStatus()
-                )
-                .map(
-                        professor -> {
-                            professor.setStatus(true);
-                            profRepo.save(professor);
-                            return true;
-                        }
-                )
+                .filter(professor -> !professor.isStatus())
+                .map(professor -> {
+                    professor.setStatus(true);
+                    profRepo.save(professor);
+                    return true;
+                })
                 .orElse(false);
     }
 

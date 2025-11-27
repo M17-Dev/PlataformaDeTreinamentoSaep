@@ -1,5 +1,6 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario;
 
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.reciclagem.UsuarioReciclagemDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;
@@ -14,10 +15,11 @@ public record AlunoDTO(
         String senha,
         Long cursoId,
         List<Long> provas,
-        boolean status
+        boolean status,
+        UsuarioReciclagemDTO reciclagem
 ) {
     public static AlunoDTO toDTO(Aluno aluno) {
-        Long curso = aluno.getCurso().getId();
+        Long curso = (aluno.getCurso() != null) ? aluno.getCurso().getId() : null;
         List<Long> listaIdProvas = aluno.getProvas().stream()
                 .map(Prova::getIdProva)
                 .toList();
@@ -30,7 +32,27 @@ public record AlunoDTO(
                 aluno.getSenha(),
                 curso,
                 listaIdProvas,
-                aluno.isStatus()
+                aluno.isStatus(),
+                null
+        );
+    }
+
+    public static AlunoDTO toDTO(Aluno aluno, UsuarioReciclagemDTO reciclagem) {
+        Long curso = (aluno.getCurso() != null) ? aluno.getCurso().getId() : null;
+        List<Long> listaIdProvas = aluno.getProvas().stream()
+                .map(Prova::getIdProva)
+                .toList();
+
+        return new AlunoDTO(
+                aluno.getId(),
+                aluno.getNome(),
+                aluno.getCpf(),
+                aluno.getEmail(),
+                aluno.getSenha(),
+                curso,
+                listaIdProvas,
+                aluno.isStatus(),
+                reciclagem
         );
     }
 
@@ -42,7 +64,6 @@ public record AlunoDTO(
         aluno.setSenha(senha);
         aluno.setTipoDeUsuario(TipoDeUsuario.ALUNO);
         aluno.setStatus(true);
-
         return aluno;
     }
 }

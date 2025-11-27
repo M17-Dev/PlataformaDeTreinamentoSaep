@@ -1,10 +1,9 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario;
 
-import com.senai.plataforma_de_treinamento_saep.aplication.dto.reciclagem.UsuarioTampinhaDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.reciclagem.UsuarioReciclagemDTO;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Professor;
 import com.senai.plataforma_de_treinamento_saep.domain.enums.TipoDeUsuario;
 
-// Adicione o campo UsuarioTampinhaDTO no final
 public record ProfessorDTO(
         Long id,
         String nome,
@@ -13,10 +12,10 @@ public record ProfessorDTO(
         String senha,
         TipoDeUsuario tipoDeUsuario,
         boolean status,
-        UsuarioTampinhaDTO reciclagem // Novo campo
+        UsuarioReciclagemDTO reciclagem
 ) {
 
-    // Método antigo (mantido para compatibilidade, passa null na reciclagem)
+    // Método padrão (reciclagem null)
     public static ProfessorDTO toDTO(Professor professor) {
         return new ProfessorDTO(
                 professor.getId(),
@@ -26,20 +25,21 @@ public record ProfessorDTO(
                 professor.getSenha(),
                 professor.getTipoDeUsuario(),
                 professor.isStatus(),
-                null // Reciclagem vazia
+                null
         );
     }
 
-    // NOVO MÉTODO: Aceita o Professor e os dados da Reciclagem
-    public static ProfessorDTO toDTO(Professor professor, UsuarioTampinhaDTO reciclagem) {
+    // Método com reciclagem
+    public static ProfessorDTO toDTO(Professor professor, UsuarioReciclagemDTO reciclagem) {
         return new ProfessorDTO(
                 professor.getId(),
                 professor.getNome(),
                 professor.getCpf(),
+                professor.getEmail(),
                 professor.getSenha(),
                 professor.getTipoDeUsuario(),
                 professor.isStatus(),
-                reciclagem // Preenche os dados
+                reciclagem
         );
     }
 

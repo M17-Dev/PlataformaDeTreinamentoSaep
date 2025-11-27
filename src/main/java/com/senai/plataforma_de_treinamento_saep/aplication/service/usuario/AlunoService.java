@@ -1,10 +1,13 @@
 package com.senai.plataforma_de_treinamento_saep.aplication.service.usuario;
 
+import com.senai.plataforma_de_treinamento_saep.aplication.dto.reciclagem.UsuarioReciclagemDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.AlunoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.RetornoCriacaoUsuarioDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.usuario.UsuarioUpdateDTO;
+import com.senai.plataforma_de_treinamento_saep.aplication.service.reciclagem.UsuarioReciclagemService;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.reciclagem.UsuarioReciclagem;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
@@ -31,6 +34,8 @@ public class AlunoService {
     private final ProvaRepository provaRepo;
     private final UsuarioServiceDomain usuarioSD;
     private final PasswordEncoder passwordEncoder;
+    // Injeção do Service de Reciclagem
+    private final UsuarioReciclagemService reciclagemService;
 
     @Transactional
     public RetornoCriacaoUsuarioDTO<AlunoDTO> cadastrarAluno(AlunoDTO dto) {
@@ -39,17 +44,24 @@ public class AlunoService {
             throw new RegraDeNegocioException("Um curso é obrigatório para criar um aluno.");
         }
         Aluno aluno = dto.fromDto();
-
         usuarioSD.verificarCpfExistente(dto.cpf());
 
         String senhaDescriptografada = usuarioSD.gerarSenhaPadrao(dto.nome());
         aluno.setSenha(passwordEncoder.encode(senhaDescriptografada));
         associarRelacionamentos(aluno, dto);
 
-        alunoRepo.save(aluno);
-        associarProvasAutomaticamente(aluno);
+        // 1. Salva o Aluno
+        Aluno alunoSalvoEntity = alunoRepo.save(aluno);
 
-        AlunoDTO alunoSalvoDTO = AlunoDTO.toDTO(aluno);
+        // 2. Associa provas
+        associarProvasAutomaticamente(alunoSalvoEntity);
+
+        // 3. Cria a conta e CAPTURA o retorno
+        UsuarioReciclagem reciclagemSalva = reciclagemService.criarContaVinculada(alunoSalvoEntity);
+        UsuarioReciclagemDTO reciclagemDTO = UsuarioReciclagemDTO.toDTO(reciclagemSalva);
+
+        // 4. Converte usando o método que ACEITA a reciclagem
+        AlunoDTO alunoSalvoDTO = AlunoDTO.toDTO(alunoSalvoEntity, reciclagemDTO);
 
         return new RetornoCriacaoUsuarioDTO<>(alunoSalvoDTO, senhaDescriptografada);
     }
@@ -57,63 +69,46 @@ public class AlunoService {
     public List<AlunoDTO> listarAlunosAtivos() {
         return alunoRepo.findByStatusTrue()
                 .stream()
-                .map(
-                        AlunoDTO::toDTO
-                )
-                .collect(
-                        Collectors.toList()
-                );
+                .map(AlunoDTO::toDTO)
+                .collect(Collectors.toList());
     }
 
     public Optional<AlunoDTO> buscarPorId(Long id) {
-        return alunoRepo.findById(id)
-                .map(
-                        AlunoDTO::toDTO
-                );
+        return alunoRepo.findById(id).map(AlunoDTO::toDTO);
     }
 
     @Transactional
     public AlunoDTO atualizarAluno(Long id, UsuarioUpdateDTO alunoDTO) {
         return alunoRepo.findById(id)
-                .map(
-                        aluno -> {
-                            atualizarInfos(aluno, alunoDTO);
-                            Aluno alunoAtualizado = alunoRepo.save(aluno);
-                            return AlunoDTO.toDTO(alunoAtualizado);
-                        }
-                )
+                .map(aluno -> {
+                    atualizarInfos(aluno, alunoDTO);
+                    Aluno alunoAtualizado = alunoRepo.save(aluno);
+                    return AlunoDTO.toDTO(alunoAtualizado);
+                })
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Aluno dono do ID: " + id + " não encontrado"));
     }
 
     @Transactional
     public boolean inativarAluno(Long id) {
         return alunoRepo.findById(id)
-                .filter(
-                        Aluno::isStatus
-                )
-                .map(
-                        aluno -> {
-                            aluno.setStatus(false);
-                            alunoRepo.save(aluno);
-                            return true;
-                        }
-                )
+                .filter(Aluno::isStatus)
+                .map(aluno -> {
+                    aluno.setStatus(false);
+                    alunoRepo.save(aluno);
+                    return true;
+                })
                 .orElse(false);
     }
 
     @Transactional
     public boolean reativarAluno(Long id) {
         return alunoRepo.findById(id)
-                .filter(
-                        aluno -> !aluno.isStatus()
-                )
-                .map(
-                        aluno -> {
-                            aluno.setStatus(true);
-                            alunoRepo.save(aluno);
-                            return true;
-                        }
-                )
+                .filter(aluno -> !aluno.isStatus())
+                .map(aluno -> {
+                    aluno.setStatus(true);
+                    alunoRepo.save(aluno);
+                    return true;
+                })
                 .orElse(false);
     }
 
@@ -143,7 +138,6 @@ public class AlunoService {
                 prova.getAlunos().add(aluno);
                 aluno.getProvas().add(prova);
             }
-
             provaRepo.saveAll(provasDoCurso);
         }
     }
