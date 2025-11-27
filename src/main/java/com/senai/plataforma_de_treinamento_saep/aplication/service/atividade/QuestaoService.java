@@ -3,12 +3,14 @@ package com.senai.plataforma_de_treinamento_saep.aplication.service.atividade;
 
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.QuestaoDTO;
 import com.senai.plataforma_de_treinamento_saep.aplication.dto.atividade.RespostaDTO;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.ProvaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
@@ -27,6 +29,9 @@ public class QuestaoService {
     private final QuestaoRepository questaoRepo;
     private final UnidadeCurricularRepository ucRepo;
     private final UsuarioRepository usuarioRepo;
+    private final ProvaRepository provaRepo;
+
+    private static final int LIMITE_QUESTOES_POR_PROVA = 5;
 
     @Transactional
     public QuestaoDTO cadastrarQuestao(QuestaoDTO dto, Long idUsuario) {
@@ -41,6 +46,7 @@ public class QuestaoService {
         questao.setRespostas(respostasQuestao);
 
         Questao questaoSalva = questaoRepo.save(questao);
+        tentaAlocarEmProvaExistente(questaoSalva);
 
         return QuestaoDTO.toDTO(questaoSalva);
     }
@@ -217,5 +223,20 @@ public class QuestaoService {
                     return resposta;
                 })
                 .toList();
+    }
+
+    private void tentaAlocarEmProvaExistente(Questao questao){
+        Optional<Prova> provaDisponivel = provaRepo.findFirstByUnidadeCurricularAndNivelDeDificuldadeAndStatusTrueAndQtdQuestoesLessThanOrderByIdProvaAsc(
+                questao.getUnidadeCurricular(),
+                questao.getNivelDeDificuldade(),
+                LIMITE_QUESTOES_POR_PROVA
+        );
+        if (provaDisponivel.isPresent()){
+            Prova prova = provaDisponivel.get();
+
+            prova.getQuestoes().add(questao);
+            prova.setQtdQuestoes(prova.getQuestoes().size());
+            provaRepo.save(prova);
+        }
     }
 }

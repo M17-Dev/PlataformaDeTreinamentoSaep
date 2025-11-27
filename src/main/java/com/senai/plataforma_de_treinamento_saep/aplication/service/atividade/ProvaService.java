@@ -14,6 +14,9 @@ import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.Ques
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,12 +35,12 @@ public class ProvaService {
     private final UnidadeCurricularRepository ucRepo;
     private final QuestaoRepository questaoRepo;
 
-
     @Transactional
     public ProvaDTO.ProvaResponseDTO cadastrarProva(ProvaDTO.ProvaRequestDTO dto){
 
         Prova prova = dto.toEntity();
         associarRelacionamentos(prova, dto);
+        preencherComQuestoesFlutuantes(prova);
 
         Prova provaSalva = provaRepo.save(prova);
 
@@ -227,6 +230,29 @@ public class ProvaService {
         }
         if (!questao.getNivelDeDificuldade().equals(prova.getNivelDeDificuldade())){
             throw new RegraDeNegocioException("O nível de dificuldade da nova questão (" + questao.getNivelDeDificuldade() + ") não é o mesmo da prova (" + prova.getNivelDeDificuldade() + ").");
+        }
+    }
+
+    private void preencherComQuestoesFlutuantes(Prova prova) {
+        int questoesAtuais = prova.getQuestoes().size();
+        final int LIMITE_QUESTOES = 5;
+        int vagasRestantes = LIMITE_QUESTOES - questoesAtuais;
+
+        if (vagasRestantes <= 0) {
+            return;
+        }
+
+        Pageable limiteBusca = PageRequest.of(0, vagasRestantes, Sort.by("id").ascending());
+
+        List<Questao> questoesFlutuantes = questaoRepo.findByUnidadeCurricularAndNivelDeDificuldadeAndStatusTrueAndProvasIsEmpty(
+                prova.getUnidadeCurricular(),
+                prova.getNivelDeDificuldade(),
+                limiteBusca
+        );
+
+        if (!questoesFlutuantes.isEmpty()) {
+            prova.getQuestoes().addAll(questoesFlutuantes);
+            prova.setQtdQuestoes(prova.getQuestoes().size());
         }
     }
 }

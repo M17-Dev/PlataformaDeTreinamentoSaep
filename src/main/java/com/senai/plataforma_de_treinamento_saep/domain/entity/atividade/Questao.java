@@ -44,5 +44,8 @@ public class Questao {
     @Enumerated(EnumType.STRING)
     private NivelDeDificuldade nivelDeDificuldade;
 
+    @ManyToMany(mappedBy = "questoes")
+    private List<Prova> provas = new ArrayList<>();
+
     private boolean status;
 }

@@ -51,7 +51,6 @@ public class Prova {
     private List<Questao> questoes = new ArrayList<>();
 
     private int qtdQuestoes;
-    //private int qtdAcertos;
 
     @Enumerated(EnumType.STRING)
     private NivelDeDificuldade nivelDeDificuldade;
