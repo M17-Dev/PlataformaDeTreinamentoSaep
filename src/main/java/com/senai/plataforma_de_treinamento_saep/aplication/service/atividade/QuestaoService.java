@@ -7,12 +7,14 @@ import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Questao;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Resposta;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.UnidadeCurricular;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Aluno;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.usuario.Usuario;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.EntidadeNaoEncontradaException;
 import com.senai.plataforma_de_treinamento_saep.domain.exception.RegraDeNegocioException;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.ProvaRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.atividade.QuestaoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.escolar.UnidadeCurricularRepository;
+import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.AlunoRepository;
 import com.senai.plataforma_de_treinamento_saep.domain.repository.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ public class QuestaoService {
     private final UnidadeCurricularRepository ucRepo;
     private final UsuarioRepository usuarioRepo;
     private final ProvaRepository provaRepo;
+    private final AlunoRepository alunoRepo;
 
     private static final int LIMITE_QUESTOES_POR_PROVA = 5;
 
@@ -46,7 +49,7 @@ public class QuestaoService {
         questao.setRespostas(respostasQuestao);
 
         Questao questaoSalva = questaoRepo.save(questao);
-        tentaAlocarEmProvaExistente(questaoSalva);
+        gerenciarAlocacaoAutomatica(questaoSalva);
 
         return QuestaoDTO.toDTO(questaoSalva);
     }
@@ -225,7 +228,7 @@ public class QuestaoService {
                 .toList();
     }
 
-    private void tentaAlocarEmProvaExistente(Questao questao){
+    private void gerenciarAlocacaoAutomatica(Questao questao){
         Optional<Prova> provaDisponivel = provaRepo.findFirstByUnidadeCurricularAndNivelDeDificuldadeAndStatusTrueAndQtdQuestoesLessThanOrderByIdProvaAsc(
                 questao.getUnidadeCurricular(),
                 questao.getNivelDeDificuldade(),
@@ -237,6 +240,30 @@ public class QuestaoService {
             prova.getQuestoes().add(questao);
             prova.setQtdQuestoes(prova.getQuestoes().size());
             provaRepo.save(prova);
+        }else {
+            criarNovaProvaComQuestao(questao);
         }
+    }
+
+    private void criarNovaProvaComQuestao(Questao questao) {
+        UnidadeCurricular uc = questao.getUnidadeCurricular();
+
+        Prova novaProva = Prova.builder()
+                .descricao("Avaliação Automática - " + uc.getNome() + " - " + questao.getNivelDeDificuldade())
+                .qtdQuestoes(0)
+                .nivelDeDificuldade(questao.getNivelDeDificuldade())
+                .status(true)
+                .unidadeCurricular(uc)
+                .build();
+
+        novaProva.getQuestoes().add(questao);
+        novaProva.setQtdQuestoes(1);
+
+        if (uc.getCurso() != null) {
+            List<Aluno> alunosDoCurso = alunoRepo.findAllByCursoId(uc.getCurso().getId());
+            novaProva.setAlunos(alunosDoCurso);
+        }
+
+        provaRepo.save(novaProva);
     }
 }
