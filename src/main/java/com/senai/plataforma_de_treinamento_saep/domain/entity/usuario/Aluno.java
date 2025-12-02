@@ -1,6 +1,7 @@
 package com.senai.plataforma_de_treinamento_saep.domain.entity.usuario;
 
 import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.Prova;
+import com.senai.plataforma_de_treinamento_saep.domain.entity.atividade.ProvaRealizada;
 import com.senai.plataforma_de_treinamento_saep.domain.entity.escolar.Curso;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,4 +20,7 @@ public class Aluno extends Usuario{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id")
     private Curso curso;
+
+    @OneToMany(mappedBy = "aluno", fetch = FetchType.LAZY)
+    private List<ProvaRealizada> provasRealizadas = new ArrayList<>();
 }
