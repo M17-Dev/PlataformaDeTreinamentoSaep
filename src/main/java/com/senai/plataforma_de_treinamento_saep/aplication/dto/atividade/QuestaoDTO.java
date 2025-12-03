@@ -27,9 +27,9 @@ public record QuestaoDTO(
 
         return new QuestaoDTO(
                 questao.getId(),
-                questao.getIntroducao(),
-                questao.getPergunta(),
-                questao.getImagem(),
+                tratarString(questao.getIntroducao()),
+                tratarString(questao.getPergunta()),
+                tratarString(questao.getImagem()),
                 usuarioId,
                 respostasDTO,
                 ucId,
@@ -44,9 +44,9 @@ public record QuestaoDTO(
 
         return new QuestaoDTO(
                 questao.getId(),
-                questao.getIntroducao(),
-                questao.getPergunta(),
-                questao.getImagem(),
+                tratarString(questao.getIntroducao()),
+                tratarString(questao.getPergunta()),
+                tratarString(questao.getImagem()),
                 usuarioId,
                 respostasPersonalizadas,
                 ucId,
@@ -57,11 +57,15 @@ public record QuestaoDTO(
 
     public Questao fromDTO() {
         Questao questao = new Questao();
-        questao.setIntroducao(this.introducao);
-        questao.setPergunta(this.pergunta);
-        questao.setImagem(this.imagem);
+        questao.setIntroducao(tratarString(this.introducao));
+        questao.setPergunta(tratarString(this.pergunta));
+        questao.setImagem(tratarString(this.imagem));
         questao.setNivelDeDificuldade(this.nivelDeDificuldade);
         questao.setStatus(true);
         return questao;
+    }
+
+    private static String tratarString(String texto) {
+        return texto != null ? texto : "";
     }
 }
