@@ -25,7 +25,7 @@ public class ProvaController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR', 'ALUNO')")
     public ResponseEntity<List<ProvaDTO.ProvaResponseDTO>> listarProvasAtivas() {
         return ResponseEntity.ok(provaService.listarProvasAtivas());
     }
