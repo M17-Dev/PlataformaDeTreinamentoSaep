@@ -32,7 +32,7 @@ public class UnidadeCurricularController {
 
     @GetMapping("/curso/{idCurso}")
     @PreAuthorize("hasAnyRole('ADMIN', 'COORDENADOR', 'PROFESSOR', 'ALUNO')")
-    public ResponseEntity<List<UnidadeCurricularDTO>> listarUnidadesCurricularesAtivasDeUmCurso(@PathVariable Long id){
+    public ResponseEntity<List<UnidadeCurricularDTO>> listarUnidadesCurricularesAtivasDeUmCurso(@PathVariable("idCurso") Long id){
         return ResponseEntity.ok(service.listarUnidadesCurricularesDoCurso(id));
     }
 

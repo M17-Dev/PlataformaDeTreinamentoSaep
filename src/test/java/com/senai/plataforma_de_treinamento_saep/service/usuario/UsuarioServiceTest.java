@@ -111,7 +111,7 @@ public class UsuarioServiceTest {
 
         assertFalse(lista.isEmpty());
         assertEquals(1, lista.size());
-        assertEquals("Ativo", lista.get(0).nome());
+        assertEquals("Ativo", lista.getFirst().nome());
     }
 
     @Test
@@ -167,7 +167,6 @@ public class UsuarioServiceTest {
         assertEquals("Nome Novo", resultado.nome());
         assertEquals("novo@email.com", resultado.email());
 
-        // Verifica se chamou o save
         verify(usuarioRepo).save(alunoAntigo);
     }
 
